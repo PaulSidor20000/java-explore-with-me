@@ -4,23 +4,22 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
-import ru.practicum.statclient.dto.RequestDto;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-import java.util.Arrays;
+import java.util.Collection;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class RequestClient {
+public class ClientRequest {
+    private final WebClient client;
     private final ObjectMapper objectMapper;
-    WebClient client = WebClient.builder()
-            .baseUrl("${stat-server.url}")
-            .build();
 
-    public ResponseEntity<String> post(RequestDto dto, String uri) throws JsonProcessingException {
+    public <T> Mono<String> post(T dto, String uri) throws JsonProcessingException {
         String json = objectMapper.writeValueAsString(dto);
 
         return client.post()
@@ -29,21 +28,21 @@ public class RequestClient {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(json))
                 .retrieve()
-                .toEntity(String.class)
-                .block();
+                .bodyToMono(String.class);
     }
 
-    public ResponseEntity<String> get(String start, String end, String[] uris, Boolean unique, String uri) {
+    public Flux<String> get(String start, String end, Optional<Collection<String>> uris, Boolean unique, String uri) {
         return client.get()
                 .uri(uriBuilder ->
                         uriBuilder
+                                .path(uri)
                                 .queryParam("start", start)
                                 .queryParam("end", end)
-                                .queryParam("uris", Arrays.asList(uris))
+                                .queryParamIfPresent("uris", uris)
                                 .queryParam("unique", unique)
-                                .build(uri))
+                                .build())
                 .retrieve()
-                .toEntity(String.class)
-                .block();
+                .bodyToFlux(String.class);
     }
+
 }
