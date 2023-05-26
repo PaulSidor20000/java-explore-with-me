@@ -15,7 +15,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class ClientRequest {
+public class ClientService {
     private final WebClient client;
     private final ObjectMapper objectMapper;
 

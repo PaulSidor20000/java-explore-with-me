@@ -20,7 +20,7 @@ import java.util.Optional;
 @RequestMapping
 @RequiredArgsConstructor
 public class ClientController {
-    private final ClientRequest client;
+    private final ClientService client;
     private static final String HIT_URI = "/hit";
     private static final String STATS_URI = "/stats";
 
