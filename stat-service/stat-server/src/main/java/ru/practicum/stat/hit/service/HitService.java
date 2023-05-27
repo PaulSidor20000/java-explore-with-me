@@ -1,7 +1,9 @@
-package ru.practicum.stat.hit;
+package ru.practicum.stat.hit.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import ru.practicum.stat.hit.repository.HitRepository;
+import ru.practicum.stat.hit.entity.HitMapper;
 import ru.practicum.statdto.dto.RequestDto;
 import ru.practicum.statdto.dto.ViewStats;
 

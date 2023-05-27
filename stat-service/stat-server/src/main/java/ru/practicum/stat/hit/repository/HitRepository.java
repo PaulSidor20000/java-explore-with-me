@@ -1,9 +1,10 @@
-package ru.practicum.stat.hit;
+package ru.practicum.stat.hit.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import ru.practicum.stat.hit.entity.HitEntity;
 import ru.practicum.statdto.dto.ViewStats;
 
 import java.time.LocalDateTime;
@@ -16,7 +17,7 @@ public interface HitRepository extends JpaRepository<HitEntity, Long> {
             "select new ru.practicum.statdto.dto.ViewStats(hit.app, hit.uri, count(hit.uri))" +
                     " from HitEntity as hit" +
                     " where hit.timestamp between :start and :end" +
-                    " group by hit.uri" +
+                    " group by hit.uri, hit.app" +
                     " order by count(hit.uri) desc"
     )
     List<ViewStats> findAllByTime(@Param("start") LocalDateTime start,
@@ -28,7 +29,7 @@ public interface HitRepository extends JpaRepository<HitEntity, Long> {
                     " from HitEntity as hit" +
                     " where hit.timestamp between :start and :end" +
                     " and hit.uri in :uris" +
-                    " group by hit.uri" +
+                    " group by hit.uri, hit.app" +
                     " order by count(hit.uri) desc"
     )
     List<ViewStats> findAllByTimeAndUris(@Param("start") LocalDateTime start,
@@ -40,7 +41,7 @@ public interface HitRepository extends JpaRepository<HitEntity, Long> {
             "select new ru.practicum.statdto.dto.ViewStats(hit.app, hit.uri, count(distinct(hit.ip)))" +
                     " from HitEntity as hit" +
                     " where hit.timestamp between :start and :end" +
-                    " group by hit.uri" +
+                    " group by hit.uri, hit.app" +
                     " order by count(hit.uri) desc"
     )
     List<ViewStats> findAllByTimeAndIp(@Param("start") LocalDateTime start,
@@ -52,7 +53,7 @@ public interface HitRepository extends JpaRepository<HitEntity, Long> {
                     " from HitEntity as hit" +
                     " where hit.timestamp between :start and :end" +
                     " and hit.uri in :uris" +
-                    " group by hit.uri" +
+                    " group by hit.uri, hit.app" +
                     " order by count(hit.uri) desc"
     )
     List<ViewStats> findAllByTimeAndUriAndIp(@Param("start") LocalDateTime start,

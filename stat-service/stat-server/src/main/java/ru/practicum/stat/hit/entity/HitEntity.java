@@ -1,4 +1,4 @@
-package ru.practicum.stat.hit;
+package ru.practicum.stat.hit.entity;
 
 import lombok.Getter;
 import lombok.Setter;

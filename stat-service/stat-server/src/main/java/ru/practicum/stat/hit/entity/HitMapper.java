@@ -1,7 +1,8 @@
-package ru.practicum.stat.hit;
+package ru.practicum.stat.hit.entity;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import ru.practicum.stat.hit.entity.HitEntity;
 import ru.practicum.statdto.dto.RequestDto;
 
 import java.time.LocalDateTime;
