@@ -15,10 +15,11 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class ClientService {
+class StatClientImpl implements StatClient {
     private final WebClient client;
     private final ObjectMapper objectMapper;
 
+    @Override
     public <T> Mono<String> post(T dto, String uri) throws JsonProcessingException {
         String json = objectMapper.writeValueAsString(dto);
 
@@ -31,14 +32,15 @@ public class ClientService {
                 .bodyToMono(String.class);
     }
 
-    public Flux<String> get(String start, String end, Optional<Collection<String>> uris, Boolean unique, String uri) {
+    @Override
+    public Flux<String> get(String start, String end, Collection<String> uris, Boolean unique, String uri) {
         return client.get()
                 .uri(uriBuilder ->
                         uriBuilder
                                 .path(uri)
                                 .queryParam("start", start)
                                 .queryParam("end", end)
-                                .queryParamIfPresent("uris", uris)
+                                .queryParamIfPresent("uris", Optional.ofNullable(uris))
                                 .queryParam("unique", unique)
                                 .build())
                 .retrieve()
