@@ -4,23 +4,27 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.reactive.function.client.WebClient;
 
 public class StatClientBuilder implements StatClient.Builder {
-    private ObjectMapper mapper;
-    private WebClient client;
+    private Object mapper;
+    private Object client;
 
     @Override
-    public StatClient.Builder client(WebClient client) {
+    public <T> StatClient.Builder client(T client) {
         this.client = client;
         return this;
     }
 
     @Override
-    public StatClient.Builder mapper(ObjectMapper mapper) {
+    public <T> StatClient.Builder mapper(T mapper) {
         this.mapper = mapper;
         return this;
     }
 
     @Override
     public StatClient build() {
-        return new StatClientImpl(client, mapper);
+        if (mapper instanceof ObjectMapper && client instanceof WebClient) {
+            return new StatClientImpl((WebClient) client, (ObjectMapper) mapper);
+        } else {
+            throw new IllegalArgumentException("Sorry, the other client was not ready");
+        }
     }
 }

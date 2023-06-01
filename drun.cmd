@@ -1,0 +1,2 @@
+docker run --name stats-db -p 6541:5432 -e POSTGRES_DB=stats-db -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=password -d postgres:14-alpine
+docker run --name ewm-db -p 6542:5432 -e POSTGRES_DB=ewm-db -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=password -d postgres:14-alpine

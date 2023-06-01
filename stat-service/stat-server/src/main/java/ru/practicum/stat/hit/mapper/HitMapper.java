@@ -1,4 +1,4 @@
-package ru.practicum.stat.hit.entity;
+package ru.practicum.stat.hit.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

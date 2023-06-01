@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -24,12 +23,6 @@ public class ErrorHandler {
         log.warn(LOG_ERROR, error.getMessage());
         return ResponseEntity.status(400).body(error.getFieldErrors().stream()
                 .collect(Collectors.toMap(FieldError::getField, Objects.requireNonNull(FieldError::getDefaultMessage))));
-    }
-
-    @ExceptionHandler
-    public ResponseEntity<Map<String, String>> validationHeaderHandler(MissingRequestHeaderException error) {
-        log.warn(LOG_ERROR, error.getMessage());
-        return ResponseEntity.status(400).body(Map.of(error.getHeaderName(), Objects.requireNonNull(error.getMessage())));
     }
 
     @ExceptionHandler

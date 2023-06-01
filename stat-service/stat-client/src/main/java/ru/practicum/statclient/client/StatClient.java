@@ -1,8 +1,6 @@
 package ru.practicum.statclient.client;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -19,9 +17,9 @@ public interface StatClient {
 
     interface Builder {
 
-        Builder client(WebClient client);
+        <T> Builder client(T client);
 
-        Builder mapper(ObjectMapper mapper);
+        <T> Builder mapper(T mapper);
 
         StatClient build();
     }

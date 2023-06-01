@@ -2,13 +2,15 @@ package ru.practicum.stat.hit.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import ru.practicum.stat.hit.mapper.HitMapper;
 import ru.practicum.stat.hit.repository.HitRepository;
-import ru.practicum.stat.hit.entity.HitMapper;
 import ru.practicum.statdto.dto.RequestDto;
 import ru.practicum.statdto.dto.ViewStats;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Collection;
 
 @Service
 @RequiredArgsConstructor
@@ -17,26 +19,25 @@ public class HitService {
     private final HitRepository hitRepository;
     private static final String SAVE_ANSWER = "Информация сохранена";
 
-    public String saveRequest(RequestDto dto) {
-        hitRepository.save(mapper.map(dto));
-
-        return SAVE_ANSWER;
+    public Mono<String> saveRequest(RequestDto dto) {
+        return hitRepository.save(mapper.map(dto))
+                .thenReturn(SAVE_ANSWER);
     }
 
-    public List<ViewStats> getStats(LocalDateTime start, LocalDateTime end, String[] uris, boolean unique) {
+    public Flux<ViewStats> getStats(LocalDateTime start, LocalDateTime end, Collection<String> uris, boolean unique) {
         if (uris == null && !unique) {
-            return hitRepository.findAllByTime(start, end);
+            return hitRepository.findStatsByTime(start, end);
         }
 
         if (uris != null && !unique) {
-            return hitRepository.findAllByTimeAndUris(start, end, uris);
+            return hitRepository.findStatsByTimeAndUris(start, end, uris);
         }
 
         if (uris == null) {
-            return hitRepository.findAllByTimeAndIp(start, end);
+            return hitRepository.findStatsByTimeAndIp(start, end);
         }
 
-        return hitRepository.findAllByTimeAndUriAndIp(start, end, uris);
+        return hitRepository.findStatsByTimeAndUriAndIp(start, end, uris);
     }
 
 }
