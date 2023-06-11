@@ -1,4 +1,4 @@
-package ru.practicum.ewm.controllers;
+package ru.practicum.ewm;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
