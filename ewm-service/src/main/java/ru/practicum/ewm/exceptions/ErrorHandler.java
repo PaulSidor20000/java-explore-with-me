@@ -8,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
-import ru.practicum.ewm.dto.ApiError;
 
 import javax.validation.ConstraintViolationException;
 
@@ -50,11 +49,12 @@ public class ErrorHandler {
     }
 
     public static boolean isStatus404(Throwable error) {
-        return error instanceof DataNotFoundException;
+        return error instanceof CategoryNotFoundException;
     }
 
     private static boolean isStatus409(Throwable error) {
-        return error instanceof DataIntegrityViolationException;
+        return error instanceof DataIntegrityViolationException ||
+                error instanceof RequestConditionException;
     }
 
 //    @ExceptionHandler
