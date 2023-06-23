@@ -14,7 +14,7 @@ public class UserRouter {
         return RouterFunctions.route()
                 .path("/admin/users", builder ->
                         builder
-                                .GET(handler::findUser)
+                                .GET(handler::findUsers)
                                 .POST(handler::createUser)
                                 .DELETE("/{id}", handler::deleteUser))
                 .build();

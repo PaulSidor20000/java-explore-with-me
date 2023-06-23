@@ -13,21 +13,21 @@ import ru.practicum.ewm.request.entity.Request;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RequestValidator {
 
-    public static void doThrow(Request request) {
-        if (request != null) {
-            throw new RequestConditionException(request);
-        }
-    }
+    public static Event incomingRequestValidator(int userId, int confirmedRequests, Event event) {
+        checkParticipantLimit(event.getParticipantLimit(), confirmedRequests);
 
-    public static void privateRequestValidator(int userId, int count, Event event) {
         if (event.getUserId() == userId) {
             throw new RequestConditionException("The requester can't be event maker");
         }
         if (event.getState() != EventState.PUBLISHED) {
             throw new RequestConditionException("Impossible to make a request on unpublished event");
         }
-        if (event.getParticipantLimit() == count) {
-            throw new RequestConditionException("Participant limit was reached");
+        return event;
+    }
+
+    public static void doThrow(Request request) {
+        if (request != null) {
+            throw new RequestConditionException(request);
         }
     }
 
@@ -39,9 +39,28 @@ public class RequestValidator {
         throw new RequestConditionException("Impossible to cancel published request");
     }
 
-    public static Request updateRequests(Request request, Event event, RequestStatus status) {
-        if (request.getStatus() == RequestStatus.PENDING) {
+    public static Request updateRequests(Request request, Event event, int confirmedRequests, RequestStatus statusToUpdate) {
+        if (!event.isRequestModeration() || event.getParticipantLimit() == 0) {
+            request.setStatus(statusToUpdate);
+            return request;
+        }
 
+        checkParticipantLimit(event.getParticipantLimit(), confirmedRequests);
+
+        request.setStatus(statusToUpdate);
+        return request;
+    }
+
+    public static boolean isRequestPending(Request request) {
+        if (request.getStatus() != RequestStatus.PENDING) {
+            throw new RequestConditionException("The request was considered already");
+        }
+        return true;
+    }
+
+    private static void checkParticipantLimit(int participantLimit, int confirmedRequests) {
+        if (confirmedRequests >= participantLimit) {
+            throw new RequestConditionException("Participant limit was reached");
         }
     }
 }

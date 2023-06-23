@@ -10,6 +10,8 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
 import javax.validation.ConstraintViolationException;
+import java.util.Arrays;
+import java.util.List;
 
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -40,6 +42,7 @@ public class ErrorHandler {
                         .message(error.getMessage())
                         .reason(error.getLocalizedMessage())
                         .status(status)
+                        .errors(List.of(error.getStackTrace()[0].toString(), error.getStackTrace()[1].toString()))
                         .build());
     }
 
@@ -49,12 +52,14 @@ public class ErrorHandler {
     }
 
     public static boolean isStatus404(Throwable error) {
-        return error instanceof CategoryNotFoundException;
+        return error instanceof CategoryNotFoundException ||
+                error instanceof UserNotFoundException;
     }
 
     private static boolean isStatus409(Throwable error) {
         return error instanceof DataIntegrityViolationException ||
-                error instanceof RequestConditionException;
+                error instanceof RequestConditionException ||
+                error instanceof CategoryConditionException;
     }
 
 //    @ExceptionHandler

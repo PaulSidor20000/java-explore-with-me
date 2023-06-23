@@ -72,7 +72,7 @@ public class PrivateEventHandler {
                 .flatMap(dto -> service.updateUserEventById(userId, eventId, dto))
                 .flatMap(dto ->
                         ServerResponse
-                                .status(HttpStatus.CREATED)
+                                .status(HttpStatus.OK)
                                 .bodyValue(dto))
                 .onErrorResume(ErrorHandler::handler);
     }

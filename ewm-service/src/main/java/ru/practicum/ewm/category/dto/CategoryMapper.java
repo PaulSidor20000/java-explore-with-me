@@ -11,7 +11,6 @@ public interface CategoryMapper {
 
     Category map(NewCategoryDto dto);
 
-//    @Mapping(target = "id", ignore = true)
     Category merge(@MappingTarget Category category, NewCategoryDto dto);
 
 }

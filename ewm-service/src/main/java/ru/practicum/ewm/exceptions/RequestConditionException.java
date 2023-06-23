@@ -19,4 +19,8 @@ public class RequestConditionException extends RuntimeException {
     public RequestConditionException(String message) {
         super(message);
     }
+
+    public String getReason() {
+        return reason;
+    }
 }

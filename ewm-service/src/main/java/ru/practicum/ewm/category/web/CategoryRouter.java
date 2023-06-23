@@ -14,7 +14,7 @@ public class CategoryRouter {
         return RouterFunctions.route()
                 .POST("/admin/categories", handler::createCategory)
                 .DELETE("/admin/categories/{id}", handler::deleteCategory)
-                .PATCH("/admin/categories/{id}", handler::patchCategory)
+                .PATCH("/admin/categories/{id}", handler::updateCategory)
                 .build();
     }
 

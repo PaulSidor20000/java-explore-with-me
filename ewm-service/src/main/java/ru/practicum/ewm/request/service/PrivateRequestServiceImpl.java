@@ -6,9 +6,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.practicum.ewm.event.entity.Event;
 import ru.practicum.ewm.event.repository.EventRepository;
-import ru.practicum.ewm.exceptions.RequestConditionException;
 import ru.practicum.ewm.request.dto.ParticipationRequestDto;
 import ru.practicum.ewm.request.dto.RequestMapper;
+import ru.practicum.ewm.request.dto.RequestStatus;
 import ru.practicum.ewm.request.repository.RequestRepository;
 import ru.practicum.ewm.validators.RequestValidator;
 
@@ -24,8 +24,8 @@ public class PrivateRequestServiceImpl implements PrivateRequestService {
         return requestRepository.findByRequesterAndEvent(userId, eventId)
                 .doOnSuccess(RequestValidator::doThrow)
                 .then(eventRepository.findById(eventId))
-                .doOnNext(event -> requestRepository.countByEvent(eventId)
-                        .doOnNext(count -> RequestValidator.privateRequestValidator(userId, count, event)))
+                .zipWith(requestRepository.countByEventAndStatus(eventId, RequestStatus.CONFIRMED),
+                        (event, confirmedRequests) -> RequestValidator.incomingRequestValidator(userId, confirmedRequests, event))
                 .map(Event::isRequestModeration)
                 .flatMap(isRequestModeration -> Mono.just(mapper.merge(userId, eventId, isRequestModeration)))
                 .flatMap(requestRepository::save)

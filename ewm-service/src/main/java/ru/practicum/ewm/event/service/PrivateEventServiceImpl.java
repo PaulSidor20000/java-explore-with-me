@@ -5,7 +5,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import ru.practicum.ewm.category.reposytory.CategoryRepository;
 import ru.practicum.ewm.event.dto.*;
 import ru.practicum.ewm.event.entity.Event;
 import ru.practicum.ewm.event.repository.EventRepository;
@@ -62,12 +61,14 @@ public class PrivateEventServiceImpl implements PrivateEventService {
 
     @Override
     public Mono<EventRequestStatusUpdateResult> updateRequestsOfUserEvent(int userId, int eventId, EventRequestStatusUpdateRequest dto) {
-        final List<ParticipationRequestDto> confirmed = new ArrayList<>();
-        final List<ParticipationRequestDto> rejected = new ArrayList<>();
+        List<ParticipationRequestDto> confirmed = new ArrayList<>();
+        List<ParticipationRequestDto> rejected = new ArrayList<>();
 
-        return requestRepository.findAllById(dto.getRequestIds())
-                .zipWith(eventRepository.findByIdAndAndUserId(eventId, userId),
-                        (request, event) -> RequestValidator.updateRequests(request, event, dto.getStatus()))
+        return Flux.zip(requestRepository.findAllById(dto.getRequestIds())
+                                .filter(RequestValidator::isRequestPending),
+                        eventRepository.findByIdAndUserId(eventId, userId),
+                        requestRepository.countByEventAndStatus(eventId, RequestStatus.CONFIRMED))
+                .map(data -> RequestValidator.updateRequests(data.getT1(), data.getT2(), data.getT3(), dto.getStatus()))
                 .flatMap(requestRepository::save)
                 .map(requestMapper::map)
                 .doOnNext(participationRequestDto -> {
@@ -82,4 +83,5 @@ public class PrivateEventServiceImpl implements PrivateEventService {
                         .rejectedRequests(rejected)
                         .build()));
     }
+
 }

@@ -6,9 +6,11 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import ru.practicum.ewm.user.entity.User;
 
+import java.util.List;
+
 @Repository
 public interface UserRepository extends R2dbcRepository<User, Integer> {
 
-    Flux<User> findAllBy(Pageable page);
+    Flux<User> findAllBy(List<Integer> ids, Pageable page);
 
 }
