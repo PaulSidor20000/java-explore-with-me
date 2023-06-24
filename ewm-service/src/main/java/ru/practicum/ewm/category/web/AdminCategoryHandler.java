@@ -36,7 +36,7 @@ public class AdminCategoryHandler {
                 .then(ServerResponse
                         .status(HttpStatus.NO_CONTENT)
                         .body(Mono.just("Категория удалена"), String.class))
-                .switchIfEmpty(Mono.error(new CategoryNotFoundException(categoryId)))
+//                .switchIfEmpty(Mono.error(new CategoryNotFoundException(categoryId)))
                 .onErrorResume(ErrorHandler::handler);
     }
 

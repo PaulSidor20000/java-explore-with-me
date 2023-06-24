@@ -6,9 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
-import ru.practicum.ewm.exceptions.CategoryNotFoundException;
 import ru.practicum.ewm.exceptions.ErrorHandler;
-import ru.practicum.ewm.exceptions.UserNotFoundException;
 import ru.practicum.ewm.user.dto.NewUserRequest;
 import ru.practicum.ewm.user.service.AdminUserService;
 import ru.practicum.ewm.validators.DtoValidator;
@@ -54,7 +52,6 @@ public class AdminUserHandler {
                 .then(ServerResponse
                         .status(HttpStatus.NO_CONTENT)
                         .body(Mono.just("Пользоваль удалён"), String.class))
-            //    .switchIfEmpty(Mono.error(new UserNotFoundException(userId)))
                 .onErrorResume(ErrorHandler::handler);
     }
 

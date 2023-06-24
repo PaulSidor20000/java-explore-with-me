@@ -1,18 +1,12 @@
 package ru.practicum.ewm.event.entity;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 import ru.practicum.ewm.event.dto.EventState;
 
-import java.util.Objects;
-
-@Getter
-@Setter
-@ToString
+@Data
 @Table(name = "events")
 public class Event {
 
@@ -52,29 +46,7 @@ public class Event {
     @Column(value = "created_on")
     private String createdOn;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Event event = (Event) o;
-        return id == event.id
-                && userId == event.userId
-                && categoryId == event.categoryId
-                && paid == event.paid
-                && participantLimit == event.participantLimit
-                && requestModeration == event.requestModeration
-                && Float.compare(event.lat, lat) == 0
-                && Float.compare(event.lon, lon) == 0
-                && Objects.equals(annotation, event.annotation)
-                && Objects.equals(description, event.description)
-                && Objects.equals(eventDate, event.eventDate)
-                && Objects.equals(title, event.title)
-                && state == event.state
-                && Objects.equals(createdOn, event.createdOn);
-    }
+    @Column(value = "published_on")
+    private String publishedOn;
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, userId, categoryId, annotation, description, eventDate, paid, participantLimit, requestModeration, title, state, lat, lon, createdOn);
-    }
 }

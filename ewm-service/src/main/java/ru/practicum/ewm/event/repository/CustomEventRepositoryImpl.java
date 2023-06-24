@@ -22,17 +22,25 @@ public class CustomEventRepositoryImpl implements CustomEventRepository {
             "select e.*," +
                     " c.name as category_name," +
                     " u.name as user_name" +
+
+                    " r.id as confirmed_requests" +
+                    // TODO confirmed_requests
+
                     " from events as e" +
                     " join categories c on c.id = e.category_id" +
-                    " join users u on u.id = e.user_id";
+                    " join users u on u.id = e.user_id" +
+                    " join requests r on r.id = e.event_id";
 
     @Override
     public Mono<EventFullDto> getEventFullDto(int eventId) {
-        String query = String.format("%s WHERE e.id = :eventId", EVENT_FULL_JOIN);
+        String where = "WHERE e.id = :eventId" +
+                " and count(r.status = :status)";
+        String query = String.format("%s %s", EVENT_FULL_JOIN, where);
 
         return client.sql(query)
 //                .bind("userId", userId)
                 .bind("eventId", eventId)
+                .bind("status", "'CONFIRMED'")
                 .map(EventFullDto::map)
                 .one();
     }

@@ -44,6 +44,13 @@ public interface EventMapper {
             " : EventState.CANCELED" +
             " : entity.getState()" +
             ")")
+    @Mapping(target = "publishedOn", expression = "java(" +
+            " dto.getStateAction() != null" +
+            " ? dto.getStateAction() == EventStateAction.PUBLISH_EVENT" +
+            " ? LocalDateTime.now().format(DateTimeFormatter.ofPattern(\"yyyy-MM-dd HH:mm:ss\"))" +
+            " : entity.getPublishedOn()" +
+            " : entity.getPublishedOn()" +
+            ")")
     @Mapping(target = "lat", expression = "java(dto.getLocation() != null ? dto.getLocation().getLat() : entity.getLat())")
     @Mapping(target = "lon", expression = "java(dto.getLocation() != null ? dto.getLocation().getLon() : entity.getLon())")
     Event merge(@MappingTarget Event entity, UpdateEventAdminRequest dto);

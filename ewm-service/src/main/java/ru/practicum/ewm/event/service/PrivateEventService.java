@@ -1,8 +1,6 @@
 package ru.practicum.ewm.event.service;
 
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.reactive.function.server.ServerRequest;
-import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.practicum.ewm.event.dto.*;

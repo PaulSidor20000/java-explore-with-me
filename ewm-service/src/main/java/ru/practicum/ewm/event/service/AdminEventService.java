@@ -9,5 +9,5 @@ import ru.practicum.ewm.event.dto.UpdateEventAdminRequest;
 public interface AdminEventService {
     Flux<EventFullDto> findEvent(MultiValueMap<String, String> params);
 
-    Mono<EventFullDto> patchEvent(int eventId, UpdateEventAdminRequest dto);
+    Mono<EventFullDto> updateEvent(int eventId, UpdateEventAdminRequest dto);
 }

@@ -45,9 +45,9 @@ public class AdminUserServiceImpl implements AdminUserService {
         return PageRequest.of(from > 0 ? from / size : 0, size);
     }
 
-    private void doThrow(User user, int userId) {
-        if (user == null) {
-            throw new UserNotFoundException(userId);
-        }
-    }
+//    private void doThrow(User user, int userId) {
+//        if (user == null) {
+//            throw new UserNotFoundException(userId);
+//        }
+//    }
 }

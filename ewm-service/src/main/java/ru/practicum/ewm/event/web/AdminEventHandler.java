@@ -34,11 +34,11 @@ public class AdminEventHandler {
                 .onErrorResume(ErrorHandler::handler);
     }
 
-    public Mono<ServerResponse> patchEvent(ServerRequest request) {
+    public Mono<ServerResponse> updateEvent(ServerRequest request) {
         int eventId = Integer.parseInt(request.pathVariable(EVENT_ID));
 
         return request.bodyToMono(UpdateEventAdminRequest.class)
-                .flatMap(dto -> service.patchEvent(eventId, dto))
+                .flatMap(dto -> service.updateEvent(eventId, dto))
                 .flatMap(dto ->
                         ServerResponse
                                 .status(HttpStatus.OK)
