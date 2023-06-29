@@ -61,7 +61,7 @@ public class EventFullDto {
         return EventFullDto.builder()
                 .id(row.get("id", Integer.class))
                 .annotation(row.get("annotation", String.class))
-                //  .confirmedRequests(row.get("annotation", Integer.class))
+                .confirmedRequests(row.get("confirmed_requests", Integer.class))
                 .createdOn(row.get("created_on", String.class))
                 .description(row.get("description", String.class))
                 .eventDate(row.get("event_date", String.class))

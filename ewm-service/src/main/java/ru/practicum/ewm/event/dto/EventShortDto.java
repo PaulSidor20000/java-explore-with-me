@@ -42,7 +42,7 @@ public class EventShortDto {
         return EventShortDto.builder()
                 .id(row.get("id", Integer.class))
                 .annotation(row.get("annotation", String.class))
-                //  .confirmedRequests(row.get("annotation", Integer.class))
+                .confirmedRequests(row.get("confirmed_requests", Integer.class))
                 .eventDate(row.get("event_date", String.class))
                 .paid(row.get("paid", Boolean.class))
                 .title(row.get("title", String.class))

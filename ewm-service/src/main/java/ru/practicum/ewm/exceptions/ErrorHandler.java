@@ -10,7 +10,6 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
 import javax.validation.ConstraintViolationException;
-import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -48,7 +47,8 @@ public class ErrorHandler {
 
     public static boolean isStatus400(Throwable error) {
         return error instanceof ConstraintViolationException ||
-                error instanceof MethodArgumentNotValidException;
+                error instanceof MethodArgumentNotValidException ||
+                error instanceof BadRequestException;
     }
 
     public static boolean isStatus404(Throwable error) {
@@ -56,7 +56,7 @@ public class ErrorHandler {
                 error instanceof UserNotFoundException;
     }
 
-    private static boolean isStatus409(Throwable error) {
+    public static boolean isStatus409(Throwable error) {
         return error instanceof DataIntegrityViolationException ||
                 error instanceof RequestConditionException ||
                 error instanceof CategoryConditionException;

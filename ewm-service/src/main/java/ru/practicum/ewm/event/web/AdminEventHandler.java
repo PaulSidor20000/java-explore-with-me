@@ -7,25 +7,20 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
-import ru.practicum.ewm.event.dto.EventMapper;
 import ru.practicum.ewm.event.dto.UpdateEventAdminRequest;
 import ru.practicum.ewm.event.service.AdminEventService;
 import ru.practicum.ewm.exceptions.ErrorHandler;
-import ru.practicum.ewm.validators.DtoValidator;
 
 @Component
 @RequiredArgsConstructor
 public class AdminEventHandler {
     private final AdminEventService service;
-    private final EventMapper mapper;
-    private final DtoValidator validator;
-    private static final String USER_ID = "userId";
     private static final String EVENT_ID = "eventId";
 
     public Mono<ServerResponse> findEvent(ServerRequest request) {
         MultiValueMap<String, String> params = request.queryParams();
 
-        return service.findEvent(params)
+        return service.findEvents(params)
                 .collectList()
                 .flatMap(dto ->
                         ServerResponse

@@ -28,8 +28,8 @@ public interface EventMapper {
 
     @Mapping(target = "state", expression = "java(" +
             " dto.getStateAction() != null" +
-            " ? dto.getStateAction() == EventStateAction.PUBLISH_EVENT" +
-            " ? EventState.PUBLISHED" +
+            " ? dto.getStateAction() == EventStateAction.SEND_TO_REVIEW" +
+            " ? EventState.PENDING" +
             " : EventState.CANCELED" +
             " : entity.getState()" +
             ")")

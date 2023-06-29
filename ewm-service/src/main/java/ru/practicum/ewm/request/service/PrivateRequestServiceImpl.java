@@ -6,6 +6,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.practicum.ewm.event.entity.Event;
 import ru.practicum.ewm.event.repository.EventRepository;
+import ru.practicum.ewm.exceptions.BadRequestException;
+import ru.practicum.ewm.exceptions.RequestConditionException;
 import ru.practicum.ewm.request.dto.ParticipationRequestDto;
 import ru.practicum.ewm.request.dto.RequestMapper;
 import ru.practicum.ewm.request.dto.RequestStatus;
@@ -21,6 +23,9 @@ public class PrivateRequestServiceImpl implements PrivateRequestService {
 
     @Override
     public Mono<ParticipationRequestDto> createNewRequest(int userId, int eventId) {
+        if (eventId == -1) {
+            return Mono.error(new BadRequestException("Missed query parameter: eventId"));
+        }
         return requestRepository.findByRequesterAndEvent(userId, eventId)
                 .doOnSuccess(RequestValidator::doThrow)
                 .then(eventRepository.findById(eventId))

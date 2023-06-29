@@ -14,4 +14,6 @@ public interface CustomEventRepository {
     Flux<EventFullDto> getEventFullDtos(MultiValueMap<String, String> params);
 
     Flux<EventShortDto> getEventShortDtos(int userId, Pageable page);
+
+    Flux<EventShortDto> getEventShortDtos(MultiValueMap<String, String> params);
 }

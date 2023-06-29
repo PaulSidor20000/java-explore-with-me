@@ -19,7 +19,7 @@ public class AdminEventServiceImpl implements AdminEventService {
     private final EventRepository eventRepository;
 
     @Override
-    public Flux<EventFullDto> findEvent(MultiValueMap<String, String> params) {
+    public Flux<EventFullDto> findEvents(MultiValueMap<String, String> params) {
         return eventRepository.getEventFullDtos(params);
     }
 

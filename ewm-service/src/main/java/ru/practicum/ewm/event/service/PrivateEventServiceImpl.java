@@ -34,7 +34,7 @@ public class PrivateEventServiceImpl implements PrivateEventService {
     @Override
     public Mono<EventFullDto> createNewEvent(Event entity) {
         return eventRepository.save(entity)
-                .map(Event::getCategoryId)
+                .map(Event::getId)
                 .flatMap(eventRepository::getEventFullDto);
     }
 
