@@ -1,11 +1,14 @@
 package ru.practicum.statdto.dto;
 
-import lombok.Getter;
+import lombok.Builder;
+import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-@Getter
+@Data
+@Builder
 public class RequestDto {
 
     @NotBlank(message = "Service identifier must be provided, example: ewm-main-service")
@@ -18,6 +21,7 @@ public class RequestDto {
     private String ip;
 
     @NotNull(message = "Date and time of request must be provided, example: 2022-09-06 11:00:23")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private String timestamp;
 
 }

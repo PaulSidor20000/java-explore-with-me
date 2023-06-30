@@ -16,7 +16,7 @@ public interface PrivateEventService {
 
     Mono<EventFullDto> updateUserEventById(int userId, int eventId, UpdateEventUserRequest dto);
 
-    Mono<ParticipationRequestDto> findRequestsOfUserEvent(int userId, int requestId);
+    Flux<ParticipationRequestDto> findRequestsOfUserEvent(int eventId);
 
     Mono<EventRequestStatusUpdateResult> updateRequestsOfUserEvent(int userId, int eventId, EventRequestStatusUpdateRequest dto);
 }

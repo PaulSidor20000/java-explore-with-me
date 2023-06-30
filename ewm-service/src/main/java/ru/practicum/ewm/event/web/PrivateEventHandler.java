@@ -78,11 +78,10 @@ public class PrivateEventHandler {
     }
 
     public Mono<ServerResponse> findRequestsOfUserEvent(ServerRequest request) {
-        int userId = Integer.parseInt(request.pathVariable(USER_ID));
-        int requestId = Integer.parseInt(request.pathVariable((REQUEST_ID)));
+        int eventId = Integer.parseInt(request.pathVariable(EVENT_ID));
 
-        return service.findRequestsOfUserEvent(userId, requestId)
-//                .collectList()
+        return service.findRequestsOfUserEvent(eventId)
+                .collectList()
                 .flatMap(dto ->
                         ServerResponse
                                 .status(HttpStatus.OK)

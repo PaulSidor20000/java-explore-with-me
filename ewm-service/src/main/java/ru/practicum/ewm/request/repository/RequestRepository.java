@@ -18,4 +18,6 @@ public interface RequestRepository extends R2dbcRepository<Request, Integer> {
 
     Mono<Request> findByRequesterAndId(int userId, int requestId);
 
+    Flux<Request> findByEvent(int eventId);
+
 }

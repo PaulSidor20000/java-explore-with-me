@@ -54,8 +54,8 @@ public class PrivateEventServiceImpl implements PrivateEventService {
     }
 
     @Override
-    public Mono<ParticipationRequestDto> findRequestsOfUserEvent(int userId, int requestId) {
-        return requestRepository.findByRequesterAndId(userId, requestId)
+    public Flux<ParticipationRequestDto> findRequestsOfUserEvent(int eventId) {
+        return requestRepository.findByEvent(eventId)
                 .map(requestMapper::map);
     }
 
