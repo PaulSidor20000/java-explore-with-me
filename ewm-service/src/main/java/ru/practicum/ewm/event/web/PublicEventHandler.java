@@ -4,12 +4,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 import ru.practicum.ewm.event.service.PublicEventService;
 import ru.practicum.ewm.exceptions.BadRequestException;
 import ru.practicum.ewm.exceptions.ErrorHandler;
+import ru.practicum.ewm.validators.EventValidator;
 import ru.practicum.statclient.client.StatClient;
 import ru.practicum.statdto.dto.RequestDto;
 
@@ -27,6 +29,7 @@ public class PublicEventHandler {
         return Mono.just(request)
                 .doOnNext(req -> hitStat(req, "/events"))
                 .map(ServerRequest::queryParams)
+                .doOnNext(EventValidator::validatePublicParams)
                 .flatMapMany(service::findEvents)
                 .collectList()
                 .flatMap(dto ->

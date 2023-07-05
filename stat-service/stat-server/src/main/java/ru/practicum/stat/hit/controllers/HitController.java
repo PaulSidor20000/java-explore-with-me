@@ -37,6 +37,9 @@ public class HitController {
                                     @RequestParam(required = false, defaultValue = "false") boolean unique
     ) {
         log.info("GET stats, start={}, end={}, uris={}, unique={}", start, end, uris, unique);
+        if (start.isAfter(end)) {
+            throw new IllegalArgumentException("Start time must be before end time");
+        }
         return statService.getStats(start, end, uris, unique);
     }
 

@@ -4,10 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import ru.practicum.ewm.event.entity.Event;
 import ru.practicum.ewm.event.repository.EventRepository;
 import ru.practicum.ewm.exceptions.BadRequestException;
-import ru.practicum.ewm.exceptions.RequestConditionException;
 import ru.practicum.ewm.request.dto.ParticipationRequestDto;
 import ru.practicum.ewm.request.dto.RequestMapper;
 import ru.practicum.ewm.request.dto.RequestStatus;
@@ -30,9 +28,9 @@ public class PrivateRequestServiceImpl implements PrivateRequestService {
                 .doOnSuccess(RequestValidator::doThrow)
                 .then(eventRepository.findById(eventId))
                 .zipWith(requestRepository.countByEventAndStatus(eventId, RequestStatus.CONFIRMED),
-                        (event, confirmedRequests) -> RequestValidator.incomingRequestValidator(userId, confirmedRequests, event))
-                .map(Event::isRequestModeration)
-                .flatMap(isRequestModeration -> Mono.just(mapper.merge(userId, eventId, isRequestModeration)))
+                        (event, confirmedRequests) ->
+                                RequestValidator.incomingRequestValidator(userId, confirmedRequests, event))
+                .flatMap(event -> Mono.just(mapper.merge(userId, event)))
                 .flatMap(requestRepository::save)
                 .map(mapper::map);
     }

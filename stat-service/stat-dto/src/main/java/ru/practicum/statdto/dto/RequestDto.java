@@ -21,7 +21,6 @@ public class RequestDto {
     private String ip;
 
     @NotNull(message = "Date and time of request must be provided, example: 2022-09-06 11:00:23")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private String timestamp;
 
 }

@@ -26,7 +26,7 @@ public class EventShortDto {
 
     private String title;
 
-    private Integer views;
+    private Long views;
 
     public static EventShortDto map(Row row, Object o) {
         CategoryDto category = CategoryDto.builder()
@@ -46,7 +46,6 @@ public class EventShortDto {
                 .eventDate(row.get("event_date", String.class))
                 .paid(row.get("paid", Boolean.class))
                 .title(row.get("title", String.class))
-                //  .views(row.get("views", Integer.class))
                 .category(category)
                 .initiator(user)
                 .build();

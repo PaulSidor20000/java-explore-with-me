@@ -11,9 +11,11 @@ public interface CustomEventRepository {
 
     Mono<EventFullDto> getEventFullDto(int eventId);
 
-    Flux<EventFullDto> getEventFullDtos(MultiValueMap<String, String> params);
+    Mono<EventFullDto> getPublicEventFullDto(int eventId);
 
-    Flux<EventShortDto> getEventShortDtos(int userId, Pageable page);
+    Flux<EventFullDto> getAdminEventFullDtos(MultiValueMap<String, String> params);
 
-    Flux<EventShortDto> getEventShortDtos(MultiValueMap<String, String> params);
+    Flux<EventShortDto> getPrivateEventShortDtos(int userId, Pageable page);
+
+    Flux<EventShortDto> getPublicEventShortDtos(MultiValueMap<String, String> params);
 }

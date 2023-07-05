@@ -5,8 +5,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
-import ru.practicum.ewm.exceptions.ErrorHandler;
-import ru.practicum.ewm.exceptions.RequestConditionException;
 
 @Configuration
 public class RequestRouter {

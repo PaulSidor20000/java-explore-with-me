@@ -40,7 +40,7 @@ public class EventFullDto {
 
     private String title;
 
-    private Integer views;
+    private Long views;
 
     public static EventFullDto map(Row row, Object o) {
         CategoryDto category = CategoryDto.builder()
@@ -71,7 +71,6 @@ public class EventFullDto {
                 .requestModeration(row.get("request_moderation", Boolean.class))
                 .state(row.get("event_state", String.class))
                 .title(row.get("title", String.class))
-                //  .views(row.get("views", Integer.class))
                 .category(category)
                 .initiator(user)
                 .location(location)

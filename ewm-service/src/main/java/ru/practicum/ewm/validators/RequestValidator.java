@@ -59,7 +59,7 @@ public class RequestValidator {
     }
 
     private static void checkParticipantLimit(int participantLimit, int confirmedRequests) {
-        if (confirmedRequests >= participantLimit) {
+        if (participantLimit != 0 && confirmedRequests >= participantLimit) {
             throw new RequestConditionException("Participant limit was reached");
         }
     }

@@ -23,15 +23,41 @@ public class CustomEventRepositoryImpl implements CustomEventRepository {
             "SELECT e.*," +
                     " c.name AS category_name," +
                     " u.name AS user_name," +
-                    " count(r.*) FILTER ( WHERE r.status = (:status)) AS confirmed_requests" +
+                    " count(r.*) FILTER ( WHERE r.status IN (:status)) AS confirmed_requests" +
                     " FROM events AS e" +
                     " LEFT JOIN categories c ON c.id = e.category_id" +
                     " LEFT JOIN users u ON u.id = e.user_id" +
                     " LEFT JOIN requests r ON r.event_id = e.id";
 
     @Override
-    public Flux<EventShortDto> getEventShortDtos(MultiValueMap<String, String> params) {
-        String parameters = " WHERE e.event_state = 'PUBLISHED'" +
+    public Flux<EventFullDto> getAdminEventFullDtos(MultiValueMap<String, String> params) {
+        String parameters = " WHERE" +
+                " e.user_id in (:users)" +
+                " AND e.event_state in (:states)" +
+                " AND e.category_id in (:cat)" +
+                " AND e.event_date between (:start) and (:end)" +
+                " GROUP BY e.id, category_name, user_name" +
+                " limit (:size)" +
+                " offset (:from)";
+        String query = String.format("%s%s", EVENT_FULL_JOIN, parameters);
+
+        return client.sql(query)
+                .bind("users", params.get("users").stream().map(Integer::parseInt).collect(Collectors.toList()))
+                .bind("states", params.get("states"))
+                .bind("cat", params.get("categories").stream().map(Integer::parseInt).collect(Collectors.toList()))
+                .bind("start", params.get("rangeStart").stream().findFirst().orElse("current_timestamp"))
+                .bind("end", params.get("rangeEnd").stream().findFirst().orElse("current_timestamp + INTERVAL '100 years'"))
+                .bind("from", params.get("from").stream().map(Integer::parseInt).findFirst().orElse(0))
+                .bind("size", params.get("size").stream().map(Integer::parseInt).findFirst().orElse(10))
+                .bind("status", "CONFIRMED")
+                .map(EventFullDto::map)
+                .all().log();
+    }
+
+    @Override
+    public Flux<EventShortDto> getPublicEventShortDtos(MultiValueMap<String, String> params) {
+        String parameters = " WHERE" +
+                " e.event_state = 'PUBLISHED'" +
                 " AND e.annotation LIKE concat('%',:text,'%') OR e.description LIKE concat('%',:text,'%')" +
                 " AND e.category_id in (:cat)" +
                 " AND e.paid = (:paid)::boolean" +
@@ -44,7 +70,7 @@ public class CustomEventRepositoryImpl implements CustomEventRepository {
         String query = String.format("%s%s", EVENT_FULL_JOIN, parameters);
 
         return client.sql(query)
-                .bind("status", "'CONFIRMED'")
+                .bind("status", "CONFIRMED")
                 .bind("text", params.get("text") != null
                         ? params.get("text").stream().findFirst().orElse("")
                         : "")
@@ -77,45 +103,40 @@ public class CustomEventRepositoryImpl implements CustomEventRepository {
     }
 
     @Override
-    public Flux<EventFullDto> getEventFullDtos(MultiValueMap<String, String> params) {
-        String parameters = " WHERE e.user_id in (:users) and" +
-                " e.event_state in (:states) and" +
-                " e.category_id in (:cat) and" +
-                " e.event_date between (:start) and (:end)" +
-                " limit (:size)" +
-                " offset (:from)";
-        String query = String.format("%s%s", EVENT_FULL_JOIN, parameters);
-
-        return client.sql(query)
-                .bind("users", params.get("users").stream().map(Integer::parseInt).collect(Collectors.toList()))
-                .bind("states", params.get("states"))
-                .bind("cat", params.get("categories").stream().map(Integer::parseInt).collect(Collectors.toList()))
-                .bind("start", params.get("rangeStart").stream().findFirst().orElse("current_timestamp"))
-                .bind("end", params.get("rangeEnd").stream().findFirst().orElse("current_timestamp + INTERVAL '100 years'"))
-                .bind("from", params.get("from").stream().map(Integer::parseInt).findFirst().orElse(0))
-                .bind("size", params.get("size").stream().map(Integer::parseInt).findFirst().orElse(10))
-                .bind("status", "'CONFIRMED'")
-                .map(EventFullDto::map)
-                .all();
-    }
-
-    @Override
     public Mono<EventFullDto> getEventFullDto(int eventId) {
-        String parameters = " WHERE e.id = (:eventId)" +
+        String parameters = " WHERE" +
+                " e.id = (:eventId)" +
                 " GROUP BY e.id, category_name, user_name";
         String query = String.format("%s%s", EVENT_FULL_JOIN, parameters);
 
         return client.sql(query)
 //                .bind("userId", userId)
                 .bind("eventId", eventId)
-                .bind("status", "'CONFIRMED'")
+                .bind("status", "CONFIRMED")
                 .map(EventFullDto::map)
                 .one();
     }
 
     @Override
-    public Flux<EventShortDto> getEventShortDtos(int userId, Pageable page) {
-        String parameters = " WHERE u.id = (:userId)" +
+    public Mono<EventFullDto> getPublicEventFullDto(int eventId) {
+        String parameters = " WHERE" +
+                " e.event_state = 'PUBLISHED'" +
+                " AND e.id = (:eventId)" +
+                " GROUP BY e.id, category_name, user_name";
+        String query = String.format("%s%s", EVENT_FULL_JOIN, parameters);
+
+        return client.sql(query)
+//                .bind("userId", userId)
+                .bind("eventId", eventId)
+                .bind("status", "CONFIRMED")
+                .map(EventFullDto::map)
+                .one();
+    }
+
+    @Override
+    public Flux<EventShortDto> getPrivateEventShortDtos(int userId, Pageable page) {
+        String parameters = " WHERE" +
+                " u.id = (:userId)" +
                 " GROUP BY e.id, category_name, user_name" +
                 " limit (:size)" +
                 " offset (:from)";
@@ -125,7 +146,7 @@ public class CustomEventRepositoryImpl implements CustomEventRepository {
                 .bind("userId", userId)
                 .bind("from", page.getPageNumber())
                 .bind("size", page.getPageSize())
-                .bind("status", "'CONFIRMED'")
+                .bind("status", "CONFIRMED")
                 .map(EventShortDto::map)
                 .all();
     }

@@ -2,6 +2,7 @@ package ru.practicum.ewm.event.dto;
 
 import org.mapstruct.*;
 import ru.practicum.ewm.event.entity.Event;
+import ru.practicum.statdto.dto.ViewStats;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -54,5 +55,11 @@ public interface EventMapper {
     @Mapping(target = "lat", expression = "java(dto.getLocation() != null ? dto.getLocation().getLat() : entity.getLat())")
     @Mapping(target = "lon", expression = "java(dto.getLocation() != null ? dto.getLocation().getLon() : entity.getLon())")
     Event merge(@MappingTarget Event entity, UpdateEventAdminRequest dto);
+
+    @Mapping(target = "views", source = "viewStats.hits")
+    EventFullDto enrich(@MappingTarget EventFullDto dto, ViewStats viewStats);
+
+    @Mapping(target = "views", source = "viewStats.hits")
+    EventShortDto enrich(@MappingTarget EventShortDto dto, ViewStats viewStats);
 
 }
