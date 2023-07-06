@@ -15,6 +15,7 @@ import ru.practicum.ewm.event.dto.UpdateEventUserRequest;
 import ru.practicum.ewm.event.service.PrivateEventService;
 import ru.practicum.ewm.exceptions.ErrorHandler;
 import ru.practicum.ewm.validators.DtoValidator;
+import ru.practicum.ewm.validators.EventValidator;
 
 @Service
 @RequiredArgsConstructor
@@ -43,6 +44,7 @@ public class PrivateEventHandler {
 
         return request.bodyToMono(NewEventDto.class)
                 .doOnNext(validator::validate)
+                .doOnNext(EventValidator::newEventValidator)
                 .map(dto -> mapper.merge(userId, dto))
                 .flatMap(service::createNewEvent)
                 .flatMap(dto ->

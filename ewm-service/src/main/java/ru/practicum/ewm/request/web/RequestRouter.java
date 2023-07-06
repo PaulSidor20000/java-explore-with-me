@@ -18,7 +18,6 @@ public class RequestRouter {
                                 .POST(handler::createNewRequest)
                                 .GET(handler::findUserRequests))
                 .build();
-
     }
 
 }

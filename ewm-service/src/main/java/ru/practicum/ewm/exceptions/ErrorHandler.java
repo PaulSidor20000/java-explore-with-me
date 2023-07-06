@@ -31,7 +31,14 @@ public class ErrorHandler {
         if (isStatus409(error)) {
             return response(error, HttpStatus.CONFLICT);
         }
+        if (isStatus403(error)) {
+            return response(error, HttpStatus.FORBIDDEN);
+        }
         return response(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    private static boolean isStatus403(Throwable error) {
+        return error instanceof EventConditionException;
     }
 
     public static Mono<ServerResponse> response(Throwable error, HttpStatus status) {
@@ -49,6 +56,7 @@ public class ErrorHandler {
     public static boolean isStatus400(Throwable error) {
         return error instanceof ConstraintViolationException ||
                 error instanceof MethodArgumentNotValidException ||
+                error instanceof EventConditionException ||
                 error instanceof BadRequestException;
     }
 

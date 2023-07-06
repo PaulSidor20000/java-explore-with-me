@@ -26,7 +26,7 @@ public class AdminEventServiceImpl implements AdminEventService {
     @Override
     public Mono<EventFullDto> updateEvent(int eventId, UpdateEventAdminRequest dto) {
         return eventRepository.findById(eventId)
-                .flatMap(entity -> EventValidator.adminEventValidator(entity, dto))
+                .flatMap(entity -> EventValidator.adminUpdateEventAdminRequestValidator(entity, dto))
                 .map(entity -> mapper.merge(entity, dto))
                 .flatMap(eventRepository::save)
                 .map(Event::getId)

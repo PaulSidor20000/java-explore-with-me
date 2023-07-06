@@ -9,18 +9,21 @@ import reactor.core.publisher.Mono;
 import ru.practicum.ewm.event.dto.UpdateEventAdminRequest;
 import ru.practicum.ewm.event.service.AdminEventService;
 import ru.practicum.ewm.exceptions.ErrorHandler;
+import ru.practicum.ewm.validators.DtoValidator;
 import ru.practicum.ewm.validators.EventValidator;
 
 @Component
 @RequiredArgsConstructor
 public class AdminEventHandler {
+    private final DtoValidator validator;
     private final AdminEventService service;
     private static final String EVENT_ID = "eventId";
 
     public Mono<ServerResponse> findEvent(ServerRequest request) {
         return Mono.just(request)
                 .map(ServerRequest::queryParams)
-                .doOnNext(EventValidator::validateAdminParams)
+//                .doOnNext(EventValidator::validateAdminParams)
+                .doOnNext(EventValidator::validatePublicParams)
                 .flatMapMany(service::findEvents)
                 .collectList()
                 .flatMap(dto ->
@@ -34,6 +37,11 @@ public class AdminEventHandler {
         int eventId = Integer.parseInt(request.pathVariable(EVENT_ID));
 
         return request.bodyToMono(UpdateEventAdminRequest.class)
+                .doOnNext(dto -> {
+                    if (dto.getAnnotation() != null && dto.getDescription() != null && dto.getTitle() != null) {
+                        validator.validate(dto);
+                    }
+                })
                 .flatMap(dto -> service.updateEvent(eventId, dto))
                 .flatMap(dto ->
                         ServerResponse
