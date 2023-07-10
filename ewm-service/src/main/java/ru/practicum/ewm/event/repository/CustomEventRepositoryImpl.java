@@ -3,7 +3,6 @@ package ru.practicum.ewm.event.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.r2dbc.core.R2dbcEntityTemplate;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.r2dbc.core.Parameter;
 import org.springframework.util.MultiValueMap;
@@ -12,22 +11,16 @@ import reactor.core.publisher.Mono;
 import ru.practicum.ewm.event.dto.EventFullDto;
 import ru.practicum.ewm.event.dto.EventShortDto;
 
-import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
-
-import static java.lang.Integer.parseInt;
 
 @RequiredArgsConstructor
 public class CustomEventRepositoryImpl implements CustomEventRepository {
     private final DatabaseClient client;
-    private final R2dbcEntityTemplate template;
-    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
     private static final String EVENT_FULL_JOIN =
             "SELECT e.*," +
                     " c.name AS category_name," +
                     " u.name AS user_name," +
-                    " count(r.*) FILTER ( WHERE r.status IN (:status)) AS confirmed_requests" +
+                    " count(r.*) FILTER (WHERE r.status = 'CONFIRMED') AS confirmed_requests" +
                     " FROM events AS e" +
                     " LEFT JOIN categories c ON c.id = e.category_id" +
                     " LEFT JOIN users u ON u.id = e.user_id" +
@@ -35,118 +28,116 @@ public class CustomEventRepositoryImpl implements CustomEventRepository {
 
     @Override
     public Flux<EventFullDto> getAdminEventFullDtos(MultiValueMap<String, String> params) {
-        String parameters = " WHERE " +
-                " e.user_id IN (:users) OR e.user_id IS NOT NULL" +
-                " AND e.event_state IN (:states) OR e.event_state IS NOT NULL" +
-                " AND e.category_id IN (:cat) OR e.category_id IS NOT NULL" +
-                " AND e.event_date between (:start) AND (:end) OR e.event_date::timestamp > current_timestamp" +
-                " GROUP BY e.id, category_name, user_name " +
-                " ORDER BY e.id DESC" +
-                " LIMIT (:size) OFFSET (:from)";
-        String query = String.format("%s%s", EVENT_FULL_JOIN, parameters);
+        String query = String.format("%s%s%s%s%s%s", EVENT_FULL_JOIN,
+                params.get("users") != null ? " WHERE e.user_id IN (:users)" : " WHERE e.user_id IS NOT NULL",
+                params.get("categories") != null ? " AND e.category_id IN (:cat)" : " AND e.category_id IS NOT NULL",
+                params.get("states") != null ? " AND e.event_state IN (:states)" : " AND e.event_state IS NOT NULL",
+                params.get("rangeStart") != null && params.get("rangeEnd") != null
+                        ? " AND e.event_date between (:start) AND (:end)"
+                        : " AND e.event_date::timestamp > current_timestamp",
+                " GROUP BY e.id, category_name, user_name ORDER BY e.id DESC LIMIT (:size)::bigint OFFSET (:from)::bigint");
+        DatabaseClient.GenericExecuteSpec bindings = client.sql(query);
 
-        return client.sql(query)
-                .bind("users", params.get("users") != null
-                        ? params.get("users").stream().map(Integer::parseInt).collect(Collectors.toList())
-                        : Parameter.empty(Integer.class))
-                .bind("cat", params.get("categories") != null
-                        ? params.get("categories").stream().map(Integer::parseInt).collect(Collectors.toList())
-                        : Parameter.empty(Integer.class))
-                .bind("states", Parameter.fromOrEmpty(params.get("states"), String.class))
-                .bind("start", Parameter.fromOrEmpty(params.get("rangeStart"), String.class))
-                .bind("end", Parameter.fromOrEmpty(params.get("rangeEnd"), String.class))
-                .bind("from", params.get("from") != null ? parseInt(params.get("from").get(0)) : 0)
-                .bind("size", params.get("size") != null ? parseInt(params.get("size").get(0)) : 10)
-                .bind("status", "CONFIRMED")
-                .map(EventFullDto::map)
-                .all().log();
+        if (params.get("users") != null) {
+            bindings = bindings.bind("users", params.get("users").stream()
+                    .map(Integer::parseInt).collect(Collectors.toList()));
+        }
+        if (params.get("categories") != null) {
+            bindings = bindings.bind("cat", params.get("categories").stream()
+                    .map(Integer::parseInt).collect(Collectors.toList()));
+        }
+        if (params.get("states") != null) {
+            bindings = bindings.bind("states", params.get("states"));
+        }
+        if (params.get("rangeStart") != null) {
+            bindings = bindings.bind("start", params.get("rangeStart"));
+        }
+        if (params.get("rangeEnd") != null) {
+            bindings = bindings.bind("end", params.get("rangeEnd"));
+        }
+        return bindings
+                .bind("from", params.get("from") != null ? params.get("from") : 0)
+                .bind("size", params.get("size") != null ? params.get("size") : 10)
+                .fetch().all()
+                .map(EventFullDto::map);
     }
 
     @Override
     public Flux<EventShortDto> getPublicEventShortDtos(MultiValueMap<String, String> params) {
-        String parameters = " WHERE " +
-                " e.event_state = 'PUBLISHED'" +
-                " AND e.annotation LIKE concat('%',:text,'%') OR e.description LIKE concat('%',:text,'%')" +
-                " AND e.category_id IN (:cat) OR e.category_id IS NOT NULL" +
-                " AND e.paid = (:paid)::boolean OR e.paid IS NOT NULL" +
-                " AND e.event_date between (:start) AND (:end) OR e.event_date::timestamp > current_timestamp" +
+        String query = String.format("%s%s%s%s%s%s", EVENT_FULL_JOIN,
+                " WHERE e.event_state = 'PUBLISHED'" +
+                        " AND e.annotation LIKE concat('%',:text,'%')",
+                params.get("categories") != null ? " AND e.category_id IN (:cat)" : " AND e.category_id IS NOT NULL",
+                params.get("paid") != null ? " AND e.paid = (:paid)::boolean" : " AND e.paid IS NOT NULL",
+                params.get("rangeStart") != null && params.get("rangeEnd") != null
+                        ? " AND e.event_date between (:start) AND (:end)"
+                        : " AND e.event_date::timestamp > current_timestamp",
                 " GROUP BY e.id, e.event_date, e.participant_limit, category_name, user_name" +
-                " HAVING (e.participant_limit - (count(r.*) FILTER ( WHERE r.status = 'CONFIRMED')) <= 0) = (:available)::boolean" +
-                " ORDER BY (:sort) DESC" +
-                " limit (:size) offset (:from)";
+                        " HAVING (e.participant_limit - (count(r.*) FILTER ( WHERE r.status = 'CONFIRMED')) <= 0) = (:available)::boolean" +
+                        " ORDER BY (:sort) DESC LIMIT (:size)::bigint OFFSET (:from)::bigint");
+        DatabaseClient.GenericExecuteSpec bindings = client.sql(query);
 
-        String query = String.format("%s%s", EVENT_FULL_JOIN, parameters);
-
-//                .bind("paid", params.get("paid") != null
-//                        ? params.get("paid").stream().findFirst().orElse("false")
-//                        : "false")
-
-        return client.sql(query)
-                .bind("cat", params.get("categories") != null
-                        ? params.get("categories").stream().map(Integer::parseInt).collect(Collectors.toList())
-                        : Parameter.empty(Integer.class))
-                .bind("available", params.get("onlyAvailable") != null
-                        ? params.get("onlyAvailable").stream().findFirst().orElse("false")
-                        : "false")
+        if (params.get("categories") != null) {
+            bindings = bindings.bind("cat", params.get("categories").stream()
+                    .map(Integer::parseInt).collect(Collectors.toList()));
+        }
+        if (params.get("paid") != null) {
+            bindings = bindings.bind("paid", params.get("paid"));
+        }
+        if (params.get("rangeStart") != null) {
+            bindings = bindings.bind("start", params.get("rangeStart"));
+        }
+        if (params.get("rangeEnd") != null) {
+            bindings = bindings.bind("end", params.get("rangeEnd"));
+        }
+        return bindings
+                .bind("available", params.get("onlyAvailable") != null ? params.get("onlyAvailable") : "false")
                 .bind("text", Parameter.fromOrEmpty(params.get("text"), String.class))
-                .bind("paid", Parameter.fromOrEmpty(params.get("paid"), Boolean.class))
-                .bind("start", Parameter.fromOrEmpty(params.get("rangeStart"), String.class))
-                .bind("end", Parameter.fromOrEmpty(params.get("rangeEnd"), String.class))
                 .bind("sort", params.get("sort") != null ? params.get("sort") : "EVENT_DATE")
-                .bind("from", params.get("from") != null ? parseInt(params.get("from").get(0)) : 0)
-                .bind("size", params.get("size") != null ? parseInt(params.get("size").get(0)) : 10)
-                .bind("status", "CONFIRMED")
-                .map(EventShortDto::map)
-                .all().log();
+                .bind("from", params.get("from") != null ? params.get("from") : 0)
+                .bind("size", params.get("size") != null ? params.get("size") : 10)
+                .fetch().all()
+                .map(EventShortDto::map);
     }
 
     @Override
     public Mono<EventFullDto> getEventFullDto(int eventId) {
-        String parameters = "  WHERE" +
-                " e.id = (:eventId)" +
+        String query = EVENT_FULL_JOIN +
+                " WHERE e.id = (:eventId)" +
                 " GROUP BY e.id, category_name, user_name ";
-        String query = String.format("%s%s", EVENT_FULL_JOIN, parameters);
 
         return client.sql(query)
-//                .bind("userId", userId)
                 .bind("eventId", eventId)
-                .bind("status", "CONFIRMED")
-                .map(EventFullDto::map)
-                .one();
+                .fetch().one()
+                .map(EventFullDto::map);
     }
 
     @Override
     public Mono<EventFullDto> getPublicEventFullDto(int eventId) {
-        String parameters = " WHERE" +
-                " e.event_state = 'PUBLISHED'" +
+        String query = EVENT_FULL_JOIN +
+                " WHERE e.event_state = 'PUBLISHED'" +
                 " AND e.id = (:eventId)" +
                 " GROUP BY e.id, category_name, user_name";
-        String query = String.format("%s%s", EVENT_FULL_JOIN, parameters);
 
         return client.sql(query)
-//                .bind("userId", userId)
                 .bind("eventId", eventId)
-                .bind("status", "CONFIRMED")
-                .map(EventFullDto::map)
-                .one();
+                .fetch().one()
+                .map(EventFullDto::map);
     }
 
     @Override
     public Flux<EventShortDto> getPrivateEventShortDtos(int userId, Pageable page) {
-        String parameters = " WHERE" +
-                " u.id = (:userId)" +
+        String query = EVENT_FULL_JOIN +
+                " WHERE u.id = (:userId)" +
                 " GROUP BY e.id, category_name, user_name" +
-                " limit (:size)" +
-                " offset (:from)";
-        String query = String.format("%s%s", EVENT_FULL_JOIN, parameters);
+                " LIMIT (:size) OFFSET (:from)";
 
         return client.sql(query)
                 .bind("userId", userId)
                 .bind("from", page.getPageNumber())
                 .bind("size", page.getPageSize())
-                .bind("status", "CONFIRMED")
-                .map(EventShortDto::map)
-                .all();
+                .fetch().all()
+                .map(EventShortDto::map);
     }
 
 }

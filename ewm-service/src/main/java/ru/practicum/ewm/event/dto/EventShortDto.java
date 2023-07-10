@@ -1,10 +1,11 @@
 package ru.practicum.ewm.event.dto;
 
-import io.r2dbc.spi.Row;
 import lombok.Builder;
 import lombok.Data;
 import ru.practicum.ewm.category.dto.CategoryDto;
 import ru.practicum.ewm.user.dto.UserShortDto;
+
+import java.util.Map;
 
 @Data
 @Builder
@@ -14,7 +15,7 @@ public class EventShortDto {
 
     private CategoryDto category;
 
-    private Integer confirmedRequests;
+    private Long confirmedRequests;
 
     private String eventDate;
 
@@ -28,24 +29,24 @@ public class EventShortDto {
 
     private Long views;
 
-    public static EventShortDto map(Row row, Object o) {
+    public static EventShortDto map(Map<String, Object> data) {
         CategoryDto category = CategoryDto.builder()
-                .id(row.get("category_id", Integer.class))
-                .name(row.get("category_name", String.class))
+                .id((Integer) data.get("category_id"))
+                .name((String) data.get("category_name"))
                 .build();
 
         UserShortDto user = UserShortDto.builder()
-                .id(row.get("user_id", Integer.class))
-                .name(row.get("user_name", String.class))
+                .id((Integer) data.get("user_id"))
+                .name((String) data.get("user_name"))
                 .build();
 
         return EventShortDto.builder()
-                .id(row.get("id", Integer.class))
-                .annotation(row.get("annotation", String.class))
-                .confirmedRequests(row.get("confirmed_requests", Integer.class))
-                .eventDate(row.get("event_date", String.class))
-                .paid(row.get("paid", Boolean.class))
-                .title(row.get("title", String.class))
+                .id((Integer) data.get("id"))
+                .annotation((String) data.get("annotation"))
+                .confirmedRequests((Long) data.get("confirmed_requests"))
+                .eventDate((String) data.get("event_date"))
+                .paid((Boolean) data.get("paid"))
+                .title((String) data.get("title"))
                 .category(category)
                 .initiator(user)
                 .build();

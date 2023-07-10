@@ -30,11 +30,10 @@ public class PublicEventServiceImpl implements PublicEventService {
 
     @Override
     public Flux<EventShortDto> findEvents(MultiValueMap<String, String> params) {
-        return Mono.just(params)
-                .flatMapMany(eventRepository::getPublicEventShortDtos)
-                .zipWith(
-                        getHits(List.of("/events")),
-                        eventMapper::enrich
+        return eventRepository.getPublicEventShortDtos(params)
+                .flatMap(dto ->
+                        getHits(List.of("/events/" + dto.getId())).singleOrEmpty()
+                                .map(viewStats -> eventMapper.enrich(dto, viewStats))
                 );
     }
 

@@ -25,7 +25,6 @@ public class PrivateEventHandler {
     private final DtoValidator validator;
     private static final String USER_ID = "userId";
     private static final String EVENT_ID = "eventId";
-    private static final String REQUEST_ID = "requestId";
 
     public Mono<ServerResponse> findUserEvents(ServerRequest request) {
         int userId = Integer.parseInt(request.pathVariable(USER_ID));
@@ -110,4 +109,5 @@ public class PrivateEventHandler {
 
         return PageRequest.of(from, size);
     }
+
 }

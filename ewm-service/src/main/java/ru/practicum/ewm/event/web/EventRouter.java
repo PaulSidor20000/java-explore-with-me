@@ -14,7 +14,7 @@ public class EventRouter {
         return RouterFunctions.route()
                 .path("/admin/events", builder ->
                         builder
-                                .GET(handler::findEvent)
+                                .GET(handler::findEvents)
                                 .PATCH("/{eventId}", handler::updateEvent))
                 .build();
     }

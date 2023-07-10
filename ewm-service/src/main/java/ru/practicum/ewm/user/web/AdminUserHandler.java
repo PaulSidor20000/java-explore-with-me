@@ -11,9 +11,6 @@ import ru.practicum.ewm.user.dto.NewUserRequest;
 import ru.practicum.ewm.user.service.AdminUserService;
 import ru.practicum.ewm.validators.DtoValidator;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Service
 @RequiredArgsConstructor
 public class AdminUserHandler {
@@ -21,11 +18,8 @@ public class AdminUserHandler {
     private final DtoValidator validator;
 
     public Mono<ServerResponse> findUsers(ServerRequest request) {
-        List<Integer> ids = request.queryParam("ids").stream().map(Integer::parseInt).collect(Collectors.toList());
-        int from = request.queryParam("from").map(Integer::parseInt).orElse(0);
-        int size = request.queryParam("size").map(Integer::parseInt).orElse(10);
-
-        return userService.findUsers(ids, from, size)
+        return Mono.just(request.queryParams())
+                .flatMapMany(userService::findUsers)
                 .collectList()
                 .flatMap(dto ->
                         ServerResponse

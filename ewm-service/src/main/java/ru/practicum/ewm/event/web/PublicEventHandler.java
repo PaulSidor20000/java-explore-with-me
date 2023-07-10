@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
@@ -17,7 +16,6 @@ import ru.practicum.statdto.dto.RequestDto;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,29 +26,29 @@ public class PublicEventHandler {
 
     public Mono<ServerResponse> findEvents(ServerRequest request) {
         return Mono.just(request)
-                .doOnNext(req -> hitStat(req, "/events"))
                 .map(ServerRequest::queryParams)
-                .doOnNext(EventValidator::validatePublicParams)
+                .doOnNext(EventValidator::validateParams)
                 .flatMapMany(service::findEvents)
                 .collectList()
                 .flatMap(dto ->
                         ServerResponse
                                 .status(HttpStatus.OK)
                                 .bodyValue(dto))
-                .onErrorResume(ErrorHandler::handler);
+                .onErrorResume(ErrorHandler::handler)
+                .doOnSuccess(response -> hitStat(request, "/events"));
     }
 
     public Mono<ServerResponse> findEventById(ServerRequest request) {
         int eventId = Integer.parseInt(request.pathVariable(EVENT_ID));
 
         return Mono.just(request)
-                .doOnNext(req -> hitStat(req, "/events/" + eventId))
                 .then(service.findEventById(eventId))
                 .flatMap(dto ->
                         ServerResponse
                                 .status(HttpStatus.OK)
                                 .bodyValue(dto))
-                .onErrorResume(ErrorHandler::handler);
+                .onErrorResume(ErrorHandler::handler)
+                .doOnSuccess(response -> hitStat(request, "/events/" + eventId));
     }
 
     private void hitStat(ServerRequest request, String uri) {

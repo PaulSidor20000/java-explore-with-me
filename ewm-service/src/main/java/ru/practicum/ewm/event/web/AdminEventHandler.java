@@ -19,11 +19,10 @@ public class AdminEventHandler {
     private final AdminEventService service;
     private static final String EVENT_ID = "eventId";
 
-    public Mono<ServerResponse> findEvent(ServerRequest request) {
+    public Mono<ServerResponse> findEvents(ServerRequest request) {
         return Mono.just(request)
                 .map(ServerRequest::queryParams)
-//                .doOnNext(EventValidator::validateAdminParams)
-                .doOnNext(EventValidator::validatePublicParams)
+                .doOnNext(EventValidator::validateParams)
                 .flatMapMany(service::findEvents)
                 .collectList()
                 .flatMap(dto ->
@@ -49,4 +48,5 @@ public class AdminEventHandler {
                                 .bodyValue(dto))
                 .onErrorResume(ErrorHandler::handler);
     }
+
 }

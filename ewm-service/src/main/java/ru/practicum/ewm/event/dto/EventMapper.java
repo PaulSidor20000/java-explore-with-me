@@ -1,6 +1,9 @@
 package ru.practicum.ewm.event.dto;
 
-import org.mapstruct.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import ru.practicum.ewm.event.entity.Event;
 import ru.practicum.statdto.dto.ViewStats;
 
