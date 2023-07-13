@@ -1,11 +1,14 @@
 package ru.practicum.statdto.dto;
 
-import lombok.Getter;
+import lombok.Builder;
+import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-@Getter
+@Data
+@Builder
 public class RequestDto {
 
     @NotBlank(message = "Service identifier must be provided, example: ewm-main-service")

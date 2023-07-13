@@ -9,6 +9,10 @@ import java.util.Collection;
 public interface StatClient {
     <T> Mono<String> post(T dto, String uri) throws JsonProcessingException;
 
+    Flux<String> get(Collection<String> uris);
+
+    Flux<String> get(Collection<String> uris, Boolean unique);
+
     Flux<String> get(String start, String end, Collection<String> uris, Boolean unique, String uri);
 
     static StatClient.Builder builder() {
