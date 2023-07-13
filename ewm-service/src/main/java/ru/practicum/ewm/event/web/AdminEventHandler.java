@@ -9,8 +9,8 @@ import reactor.core.publisher.Mono;
 import ru.practicum.ewm.event.dto.UpdateEventAdminRequest;
 import ru.practicum.ewm.event.service.AdminEventService;
 import ru.practicum.ewm.exceptions.ErrorHandler;
-import ru.practicum.ewm.validators.DtoValidator;
-import ru.practicum.ewm.validators.EventValidator;
+import ru.practicum.ewm.utils.DtoValidator;
+import ru.practicum.ewm.utils.EventValidator;
 
 @Component
 @RequiredArgsConstructor
@@ -20,8 +20,7 @@ public class AdminEventHandler {
     private static final String EVENT_ID = "eventId";
 
     public Mono<ServerResponse> findEvents(ServerRequest request) {
-        return Mono.just(request)
-                .map(ServerRequest::queryParams)
+        return Mono.just(request.queryParams())
                 .doOnNext(EventValidator::validateParams)
                 .flatMapMany(service::findEvents)
                 .collectList()

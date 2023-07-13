@@ -6,12 +6,10 @@ import reactor.core.publisher.Mono;
 import ru.practicum.ewm.category.dto.CategoryDto;
 import ru.practicum.ewm.category.dto.CategoryMapper;
 import ru.practicum.ewm.category.dto.NewCategoryDto;
-import ru.practicum.ewm.category.reposytory.CategoryRepository;
+import ru.practicum.ewm.category.repository.CategoryRepository;
 import ru.practicum.ewm.event.entity.Event;
 import ru.practicum.ewm.event.repository.EventRepository;
 import ru.practicum.ewm.exceptions.CategoryConditionException;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor

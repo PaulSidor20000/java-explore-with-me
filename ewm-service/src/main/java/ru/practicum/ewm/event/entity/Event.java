@@ -11,6 +11,7 @@ import ru.practicum.ewm.event.dto.EventState;
 public class Event {
 
     @Id
+    @Column(value = "event_id")
     private int id;
 
     @Column(value = "user_id")
@@ -34,6 +35,7 @@ public class Event {
     @Column(value = "request_moderation")
     private boolean requestModeration;
 
+    @Column(value = "event_title")
     private String title;
 
     @Column(value = "event_state")

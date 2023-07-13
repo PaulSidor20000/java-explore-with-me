@@ -17,14 +17,12 @@ import java.util.stream.Collectors;
 public class CustomEventRepositoryImpl implements CustomEventRepository {
     private final DatabaseClient client;
     private static final String EVENT_FULL_JOIN =
-            "SELECT e.*," +
-                    " c.name AS category_name," +
-                    " u.name AS user_name," +
-                    " count(r.*) FILTER (WHERE r.status = 'CONFIRMED') AS confirmed_requests" +
+            "SELECT e.*, category_name, user_name," +
+                    " count(r.*) FILTER (WHERE request_status = 'CONFIRMED') AS confirmed_requests" +
                     " FROM events AS e" +
-                    " LEFT JOIN categories c ON c.id = e.category_id" +
-                    " LEFT JOIN users u ON u.id = e.user_id" +
-                    " LEFT JOIN requests r ON r.event_id = e.id";
+                    " LEFT JOIN categories c ON c.category_id = e.category_id" +
+                    " LEFT JOIN users u ON u.user_id = e.user_id" +
+                    " LEFT JOIN requests r ON r.event_id = e.event_id";
 
     @Override
     public Flux<EventFullDto> getAdminEventFullDtos(MultiValueMap<String, String> params) {
@@ -35,7 +33,7 @@ public class CustomEventRepositoryImpl implements CustomEventRepository {
                 params.get("rangeStart") != null && params.get("rangeEnd") != null
                         ? " AND e.event_date between (:start) AND (:end)"
                         : " AND e.event_date::timestamp > current_timestamp",
-                " GROUP BY e.id, category_name, user_name ORDER BY e.id DESC LIMIT (:size)::bigint OFFSET (:from)::bigint");
+                " GROUP BY e.event_id, category_name, user_name ORDER BY e.event_id DESC LIMIT (:size)::bigint OFFSET (:from)::bigint");
         DatabaseClient.GenericExecuteSpec bindings = client.sql(query);
 
         if (params.get("users") != null) {
@@ -59,7 +57,7 @@ public class CustomEventRepositoryImpl implements CustomEventRepository {
                 .bind("from", params.get("from") != null ? params.get("from") : 0)
                 .bind("size", params.get("size") != null ? params.get("size") : 10)
                 .fetch().all()
-                .map(EventFullDto::map);
+                .mapNotNull(EventFullDto::map);
     }
 
     @Override
@@ -72,8 +70,8 @@ public class CustomEventRepositoryImpl implements CustomEventRepository {
                 params.get("rangeStart") != null && params.get("rangeEnd") != null
                         ? " AND e.event_date between (:start) AND (:end)"
                         : " AND e.event_date::timestamp > current_timestamp",
-                " GROUP BY e.id, e.event_date, e.participant_limit, category_name, user_name" +
-                        " HAVING (e.participant_limit - (count(r.*) FILTER ( WHERE r.status = 'CONFIRMED')) <= 0) = (:available)::boolean" +
+                " GROUP BY e.event_id, e.event_date, e.participant_limit, category_name, user_name" +
+                        " HAVING (e.participant_limit - (count(r.*) FILTER ( WHERE request_status = 'CONFIRMED')) <= 0) = (:available)::boolean" +
                         " ORDER BY (:sort) DESC LIMIT (:size)::bigint OFFSET (:from)::bigint");
         DatabaseClient.GenericExecuteSpec bindings = client.sql(query);
 
@@ -97,39 +95,39 @@ public class CustomEventRepositoryImpl implements CustomEventRepository {
                 .bind("from", params.get("from") != null ? params.get("from") : 0)
                 .bind("size", params.get("size") != null ? params.get("size") : 10)
                 .fetch().all()
-                .map(EventShortDto::map);
+                .mapNotNull(EventShortDto::map);
     }
 
     @Override
     public Mono<EventFullDto> getEventFullDto(int eventId) {
         String query = EVENT_FULL_JOIN +
-                " WHERE e.id = (:eventId)" +
-                " GROUP BY e.id, category_name, user_name ";
+                " WHERE e.event_id = (:eventId)" +
+                " GROUP BY e.event_id, category_name, user_name ";
 
         return client.sql(query)
                 .bind("eventId", eventId)
                 .fetch().one()
-                .map(EventFullDto::map);
+                .mapNotNull(EventFullDto::map);
     }
 
     @Override
     public Mono<EventFullDto> getPublicEventFullDto(int eventId) {
         String query = EVENT_FULL_JOIN +
                 " WHERE e.event_state = 'PUBLISHED'" +
-                " AND e.id = (:eventId)" +
-                " GROUP BY e.id, category_name, user_name";
+                " AND e.event_id = (:eventId)" +
+                " GROUP BY e.event_id, category_name, user_name";
 
         return client.sql(query)
                 .bind("eventId", eventId)
                 .fetch().one()
-                .map(EventFullDto::map);
+                .mapNotNull(EventFullDto::map);
     }
 
     @Override
     public Flux<EventShortDto> getPrivateEventShortDtos(int userId, Pageable page) {
         String query = EVENT_FULL_JOIN +
-                " WHERE u.id = (:userId)" +
-                " GROUP BY e.id, category_name, user_name" +
+                " WHERE u.user_id = (:userId)" +
+                " GROUP BY e.event_id, category_name, user_name" +
                 " LIMIT (:size) OFFSET (:from)";
 
         return client.sql(query)
@@ -137,7 +135,7 @@ public class CustomEventRepositoryImpl implements CustomEventRepository {
                 .bind("from", page.getPageNumber())
                 .bind("size", page.getPageSize())
                 .fetch().all()
-                .map(EventShortDto::map);
+                .mapNotNull(EventShortDto::map);
     }
 
 }

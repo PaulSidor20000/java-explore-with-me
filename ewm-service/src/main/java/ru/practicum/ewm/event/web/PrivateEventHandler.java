@@ -14,8 +14,8 @@ import ru.practicum.ewm.event.dto.NewEventDto;
 import ru.practicum.ewm.event.dto.UpdateEventUserRequest;
 import ru.practicum.ewm.event.service.PrivateEventService;
 import ru.practicum.ewm.exceptions.ErrorHandler;
-import ru.practicum.ewm.validators.DtoValidator;
-import ru.practicum.ewm.validators.EventValidator;
+import ru.practicum.ewm.utils.DtoValidator;
+import ru.practicum.ewm.utils.EventValidator;
 
 @Service
 @RequiredArgsConstructor

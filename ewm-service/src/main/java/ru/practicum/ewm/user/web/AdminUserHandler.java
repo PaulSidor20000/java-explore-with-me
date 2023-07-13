@@ -9,7 +9,7 @@ import reactor.core.publisher.Mono;
 import ru.practicum.ewm.exceptions.ErrorHandler;
 import ru.practicum.ewm.user.dto.NewUserRequest;
 import ru.practicum.ewm.user.service.AdminUserService;
-import ru.practicum.ewm.validators.DtoValidator;
+import ru.practicum.ewm.utils.DtoValidator;
 
 @Service
 @RequiredArgsConstructor

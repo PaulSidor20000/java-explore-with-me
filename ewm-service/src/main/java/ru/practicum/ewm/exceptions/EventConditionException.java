@@ -1,8 +1,5 @@
 package ru.practicum.ewm.exceptions;
 
-import ru.practicum.ewm.event.dto.EventState;
-import ru.practicum.ewm.request.entity.Request;
-
 import java.time.LocalDateTime;
 
 public class EventConditionException extends RuntimeException {
@@ -12,12 +9,6 @@ public class EventConditionException extends RuntimeException {
         super(String.format("Field: eventDate. Error: должно содержать дату, которая еще не наступила. Value: %s", dateTime));
     }
 
-    //    public EventConditionException(EventState state) {
-    //        super(String.format("Cannot publish the event because it's not in the right state: %s", state));
-    //    }
-//    public EventConditionException(Request request) {
-//        super(String.format("The same request was emitted already %s", request));
-//    }
     public EventConditionException(String message) {
         super(message);
     }

@@ -1,4 +1,4 @@
-package ru.practicum.ewm.validators;
+package ru.practicum.ewm.utils;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -13,8 +13,6 @@ import ru.practicum.ewm.exceptions.RequestConditionException;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Optional;
 
 @Component
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -60,16 +58,9 @@ public class EventValidator {
     }
 
     public static void validateParams(MultiValueMap<String, String> params) {
-        Optional<List<String>> rangeStart = Optional.ofNullable(params.get("rangeStart"));
-        Optional<List<String>> rangeEnd = Optional.ofNullable(params.get("rangeEnd"));
-
-        if (rangeStart.isPresent() && rangeEnd.isPresent()) {
-            LocalDateTime start = LocalDateTime.parse(rangeStart
-                    .get()
-                    .get(0), formatter);
-            LocalDateTime end = LocalDateTime.parse(rangeEnd
-                    .get()
-                    .get(0), formatter);
+        if (params.get("rangeStart") != null && params.get("rangeEnd") != null) {
+            LocalDateTime start = LocalDateTime.parse(params.get("rangeStart").get(0), formatter);
+            LocalDateTime end = LocalDateTime.parse(params.get("rangeEnd").get(0), formatter);
 
             if (start.isAfter(end)) {
                 throw new BadRequestException("Start time must be before end time");

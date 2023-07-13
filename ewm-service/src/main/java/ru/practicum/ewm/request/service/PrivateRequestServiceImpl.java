@@ -6,11 +6,13 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.practicum.ewm.event.repository.EventRepository;
 import ru.practicum.ewm.exceptions.BadRequestException;
+import ru.practicum.ewm.exceptions.RequestConditionException;
 import ru.practicum.ewm.request.dto.ParticipationRequestDto;
 import ru.practicum.ewm.request.dto.RequestMapper;
 import ru.practicum.ewm.request.dto.RequestStatus;
+import ru.practicum.ewm.request.entity.Request;
 import ru.practicum.ewm.request.repository.RequestRepository;
-import ru.practicum.ewm.validators.RequestValidator;
+import ru.practicum.ewm.utils.RequestValidator;
 
 @Service
 @RequiredArgsConstructor
@@ -25,12 +27,12 @@ public class PrivateRequestServiceImpl implements PrivateRequestService {
             return Mono.error(new BadRequestException("Missed query parameter: eventId"));
         }
         return requestRepository.findByRequesterAndEvent(userId, eventId)
-                .doOnSuccess(RequestValidator::doThrow)
+                .doOnSuccess(this::doThrow)
                 .then(eventRepository.findById(eventId))
                 .zipWith(requestRepository.countByEventAndStatus(eventId, RequestStatus.CONFIRMED),
                         (event, confirmedRequests) ->
                                 RequestValidator.incomingRequestValidator(userId, confirmedRequests, event))
-                .flatMap(event -> Mono.just(mapper.merge(userId, event)))
+                .map(event -> mapper.merge(userId, event))
                 .flatMap(requestRepository::save)
                 .map(mapper::map);
     }
@@ -44,9 +46,23 @@ public class PrivateRequestServiceImpl implements PrivateRequestService {
     @Override
     public Mono<ParticipationRequestDto> cancelUserRequest(int userId, int requestId) {
         return requestRepository.findByRequesterAndId(userId, requestId)
-                .map(RequestValidator::doCancel)
+                .map(this::doCancel)
                 .flatMap(requestRepository::save)
                 .map(mapper::map);
+    }
+
+    private void doThrow(Request request) {
+        if (request != null) {
+            throw new RequestConditionException(request);
+        }
+    }
+
+    private Request doCancel(Request request) {
+        if (request.getStatus() == RequestStatus.PENDING) {
+            request.setStatus(RequestStatus.CANCELED);
+            return request;
+        }
+        throw new RequestConditionException("Impossible to cancel published request");
     }
 
 }

@@ -1,8 +1,9 @@
 package ru.practicum.ewm.user.dto;
 
-import io.r2dbc.spi.Row;
 import lombok.Builder;
 import lombok.Data;
+
+import java.util.Map;
 
 @Data
 @Builder
@@ -14,12 +15,15 @@ public class UserDto {
 
     private String email;
 
-    public static UserDto map(Row row, Object o) {
-        return UserDto.builder()
-                .id(row.get("id", Integer.class))
-                .name(row.get("name", String.class))
-                .email(row.get("email", String.class))
-                .build();
+    public static UserDto map(Map<String, Object> rows) {
+        if (rows.get("user_id") != null) {
+            return UserDto.builder()
+                    .id((Integer) rows.get("user_id"))
+                    .name((String) rows.get("user_name"))
+                    .email((String) rows.get("user_email"))
+                    .build();
+        }
+        return null;
     }
 
 }

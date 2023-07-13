@@ -1,26 +1,24 @@
-package ru.practicum.ewm.category.web;
+package ru.practicum.ewm.compilation.web;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
-import ru.practicum.ewm.category.service.PublicCategoryService;
-import ru.practicum.ewm.exceptions.CategoryNotFoundException;
+import ru.practicum.ewm.compilation.service.PublicCompilationService;
 import ru.practicum.ewm.exceptions.ErrorHandler;
 
 @Component
 @RequiredArgsConstructor
-public class PublicCategoryHandler {
-    private final PublicCategoryService categoryService;
+public class PublicCompilationHandler {
+    private final PublicCompilationService publicCompilationService;
+    private static final String COMPILATION_ID = "compId";
 
-    public Mono<ServerResponse> findCategories(ServerRequest request) {
-        MultiValueMap<String, String> params = request.queryParams();
+    public Mono<ServerResponse> findCompilationById(ServerRequest request) {
+        int compilationId = Integer.parseInt(request.pathVariable(COMPILATION_ID));
 
-        return categoryService.findCategories(params)
-                .collectList()
+        return publicCompilationService.findCompilationById(compilationId)
                 .flatMap(dto ->
                         ServerResponse
                                 .status(HttpStatus.OK)
@@ -28,15 +26,14 @@ public class PublicCategoryHandler {
                 .onErrorResume(ErrorHandler::handler);
     }
 
-    public Mono<ServerResponse> findCategoryById(ServerRequest request) {
-        int categoryId = Integer.parseInt(request.pathVariables().get("id"));
-
-        return categoryService.findCategoryById(categoryId)
+    public Mono<ServerResponse> findCompilations(ServerRequest request) {
+        return Mono.just(request.queryParams())
+                .flatMapMany(publicCompilationService::findCompilations)
+                .collectList()
                 .flatMap(dto ->
                         ServerResponse
                                 .status(HttpStatus.OK)
                                 .bodyValue(dto))
-                .switchIfEmpty(Mono.error(new CategoryNotFoundException(categoryId)))
                 .onErrorResume(ErrorHandler::handler);
     }
 

@@ -19,13 +19,13 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     @Override
     public Flux<UserDto> findUsers(MultiValueMap<String, String> params) {
-        return userRepository.findAllUsersByParams(params);
+        return userRepository.findAllUsersByParams(params)
+                .map(userMapper::map);
     }
 
     @Override
     public Mono<UserDto> createUser(NewUserRequest dto) {
-        return Mono.just(dto)
-                .map(userMapper::map)
+        return Mono.just(userMapper.map(dto))
                 .flatMap(userRepository::save)
                 .map(userMapper::map);
     }

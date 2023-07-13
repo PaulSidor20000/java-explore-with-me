@@ -1,34 +1,19 @@
 package ru.practicum.ewm.category.entity;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
-import java.util.Objects;
-
-@Getter
-@Setter
-@ToString
+@Data
 @Table(name = "categories")
 public class Category {
 
     @Id
+    @Column(value = "category_id")
     private int id;
 
+    @Column(value = "category_name")
     private String name;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Category category = (Category) o;
-        return id == category.id && Objects.equals(name, category.name);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name);
-    }
 }

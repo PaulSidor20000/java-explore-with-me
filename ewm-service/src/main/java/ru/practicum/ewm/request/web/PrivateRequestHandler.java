@@ -7,7 +7,6 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 import ru.practicum.ewm.exceptions.ErrorHandler;
-import ru.practicum.ewm.exceptions.RequestConditionException;
 import ru.practicum.ewm.request.service.PrivateRequestService;
 
 @Component

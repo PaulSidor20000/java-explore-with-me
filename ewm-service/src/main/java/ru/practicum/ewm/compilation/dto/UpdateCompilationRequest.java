@@ -1,15 +1,20 @@
 package ru.practicum.ewm.compilation.dto;
 
 import lombok.Data;
-import org.hibernate.validator.constraints.Range;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
+import java.util.Set;
 
 @Data
 public class UpdateCompilationRequest {
 
-    private int events;
+    private Set<Integer> events;
 
-    private boolean pinned;
+    private Boolean pinned;
 
-    @Range(min = 1, max = 50)
+    @NotBlank
+    @Size(min = 1, max = 50)
     private String title;
+
 }

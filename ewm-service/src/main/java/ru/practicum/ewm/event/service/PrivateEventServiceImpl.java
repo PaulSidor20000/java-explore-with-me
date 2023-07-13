@@ -12,8 +12,8 @@ import ru.practicum.ewm.request.dto.ParticipationRequestDto;
 import ru.practicum.ewm.request.dto.RequestMapper;
 import ru.practicum.ewm.request.dto.RequestStatus;
 import ru.practicum.ewm.request.repository.RequestRepository;
-import ru.practicum.ewm.validators.EventValidator;
-import ru.practicum.ewm.validators.RequestValidator;
+import ru.practicum.ewm.utils.EventValidator;
+import ru.practicum.ewm.utils.RequestValidator;
 
 import java.util.ArrayList;
 import java.util.List;

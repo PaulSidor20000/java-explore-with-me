@@ -29,27 +29,20 @@ public class EventShortDto {
 
     private Long views;
 
-    public static EventShortDto map(Map<String, Object> data) {
-        CategoryDto category = CategoryDto.builder()
-                .id((Integer) data.get("category_id"))
-                .name((String) data.get("category_name"))
-                .build();
-
-        UserShortDto user = UserShortDto.builder()
-                .id((Integer) data.get("user_id"))
-                .name((String) data.get("user_name"))
-                .build();
-
-        return EventShortDto.builder()
-                .id((Integer) data.get("id"))
-                .annotation((String) data.get("annotation"))
-                .confirmedRequests((Long) data.get("confirmed_requests"))
-                .eventDate((String) data.get("event_date"))
-                .paid((Boolean) data.get("paid"))
-                .title((String) data.get("title"))
-                .category(category)
-                .initiator(user)
-                .build();
+    public static EventShortDto map(Map<String, Object> rows) {
+        if (rows.get("event_id") != null) {
+            return EventShortDto.builder()
+                    .id((Integer) rows.get("event_id"))
+                    .annotation((String) rows.get("annotation"))
+                    .confirmedRequests((Long) rows.get("confirmed_requests"))
+                    .eventDate((String) rows.get("event_date"))
+                    .paid((Boolean) rows.get("paid"))
+                    .title((String) rows.get("event_title"))
+                    .category(CategoryDto.map(rows))
+                    .initiator(UserShortDto.map(rows))
+                    .build();
+        }
+        return null;
     }
 
 }

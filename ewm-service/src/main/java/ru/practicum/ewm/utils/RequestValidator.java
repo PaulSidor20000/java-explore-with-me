@@ -1,4 +1,4 @@
-package ru.practicum.ewm.validators;
+package ru.practicum.ewm.utils;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -25,29 +25,14 @@ public class RequestValidator {
         return event;
     }
 
-    public static void doThrow(Request request) {
-        if (request != null) {
-            throw new RequestConditionException(request);
-        }
-    }
-
-    public static Request doCancel(Request request) {
-        if (request.getStatus() == RequestStatus.PENDING) {
-            request.setStatus(RequestStatus.CANCELED);
-            return request;
-        }
-        throw new RequestConditionException("Impossible to cancel published request");
-    }
-
     public static Request updateRequests(Request request, Event event, int confirmedRequests, RequestStatus statusToUpdate) {
         if (!event.isRequestModeration() || event.getParticipantLimit() == 0) {
             request.setStatus(statusToUpdate);
             return request;
         }
-
         checkParticipantLimit(event.getParticipantLimit(), confirmedRequests);
-
         request.setStatus(statusToUpdate);
+
         return request;
     }
 

@@ -1,4 +1,4 @@
-package ru.practicum.ewm.validators;
+package ru.practicum.ewm.utils;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

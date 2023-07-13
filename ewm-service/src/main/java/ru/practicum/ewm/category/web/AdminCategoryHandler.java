@@ -10,7 +10,7 @@ import ru.practicum.ewm.category.dto.NewCategoryDto;
 import ru.practicum.ewm.category.service.AdminCategoryService;
 import ru.practicum.ewm.exceptions.CategoryNotFoundException;
 import ru.practicum.ewm.exceptions.ErrorHandler;
-import ru.practicum.ewm.validators.DtoValidator;
+import ru.practicum.ewm.utils.DtoValidator;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +36,6 @@ public class AdminCategoryHandler {
                 .then(ServerResponse
                         .status(HttpStatus.NO_CONTENT)
                         .body(Mono.just("Категория удалена"), String.class))
-//                .switchIfEmpty(Mono.error(new CategoryNotFoundException(categoryId)))
                 .onErrorResume(ErrorHandler::handler);
     }
 

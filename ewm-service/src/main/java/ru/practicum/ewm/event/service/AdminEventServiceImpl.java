@@ -10,7 +10,7 @@ import ru.practicum.ewm.event.dto.EventMapper;
 import ru.practicum.ewm.event.dto.UpdateEventAdminRequest;
 import ru.practicum.ewm.event.entity.Event;
 import ru.practicum.ewm.event.repository.EventRepository;
-import ru.practicum.ewm.validators.EventValidator;
+import ru.practicum.ewm.utils.EventValidator;
 
 @Service
 @RequiredArgsConstructor
