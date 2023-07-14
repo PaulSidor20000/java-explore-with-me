@@ -6,7 +6,7 @@ import ru.practicum.ewm.request.entity.Request;
 import java.time.LocalDateTime;
 
 public class RequestConditionException extends RuntimeException {
-    private final String reason = "For the requested operation the conditions are not met.";
+    private static final String REASON = "For the requested operation the conditions are not met.";
 
     public RequestConditionException(EventState state) {
         super(String.format("Cannot publish the event because it's not in the right state: %s", state));
@@ -24,7 +24,9 @@ public class RequestConditionException extends RuntimeException {
         super(message);
     }
 
-    public String getReason() {
-        return reason;
+    @Override
+    public String getLocalizedMessage() {
+        return REASON;
     }
+
 }

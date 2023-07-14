@@ -32,7 +32,6 @@ public class AdminCategoryServiceImpl implements AdminCategoryService {
                 .then(categoryRepository.deleteById(categoryId));
     }
 
-
     @Override
     public Mono<CategoryDto> updateCategory(int categoryId, NewCategoryDto dto) {
         return categoryRepository.findById(categoryId)

@@ -16,10 +16,9 @@ import java.util.List;
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ErrorHandler {
-    public static final String A_ERROR = "error";
-    public static final String NOT_FOUND = "The required object was not found.";
-    public static final String LOG_ERROR = "Error message: {}";
-    public static final String SERVER_ERROR = "Server error:";
+    private static final String LOG_ERROR = "Error message: {}";
+    private static final String DB_REASON = "Integrity constraint has been violated.";
+    private static final String NOT_VALID_REASON = "Incorrectly made request.";
 
     public static Mono<ServerResponse> handler(Throwable error) {
         if (isStatus400(error)) {
@@ -31,26 +30,38 @@ public class ErrorHandler {
         if (isStatus409(error)) {
             return response(error, HttpStatus.CONFLICT);
         }
-        if (isStatus403(error)) {
-            return response(error, HttpStatus.FORBIDDEN);
-        }
         return response(error, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
-    private static boolean isStatus403(Throwable error) {
-        return error instanceof EventConditionException;
     }
 
     public static Mono<ServerResponse> response(Throwable error, HttpStatus status) {
         log.warn(LOG_ERROR, error.getMessage());
+
         return ServerResponse
                 .status(status)
                 .bodyValue(ApiError.builder()
                         .message(error.getMessage())
-                        .reason(error.getLocalizedMessage())
-                        .status(status)
+                        .reason(getReasonMessage(error))
+                        .status(getApiErrorStatus(error, status))
                         .errors(List.of(Arrays.toString(error.getStackTrace())))
                         .build());
+    }
+
+    private static String getReasonMessage(Throwable error) {
+        if (error instanceof DataIntegrityViolationException) {
+            return DB_REASON;
+        } else if (error instanceof MethodArgumentNotValidException ||
+                error instanceof ConstraintViolationException) {
+            return NOT_VALID_REASON;
+        }
+        return error.getLocalizedMessage();
+    }
+
+    private static HttpStatus getApiErrorStatus(Throwable error, HttpStatus status) {
+        if (error instanceof EventConditionException ||
+                error instanceof RequestConditionException) {
+            return HttpStatus.FORBIDDEN;
+        }
+        return status;
     }
 
     public static boolean isStatus400(Throwable error) {
@@ -71,13 +82,5 @@ public class ErrorHandler {
                 error instanceof RequestConditionException ||
                 error instanceof CategoryConditionException;
     }
-
-//    @ExceptionHandler
-//    public ResponseEntity<Map<String, String>> validationAnnotationHandler(MethodArgumentNotValidException error) {
-//        log.warn(LOG_ERROR, error.getMessage());
-//        return ResponseEntity.status(400).body(error.getFieldErrors().stream()
-//                .collect(Collectors.toMap(FieldError::getField, Objects.requireNonNull(FieldError::getDefaultMessage))));
-//    }
-//
 
 }
