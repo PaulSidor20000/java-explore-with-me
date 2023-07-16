@@ -3,6 +3,7 @@ package ru.practicum.stat.hit.controllers;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -23,6 +24,7 @@ public class HitController {
     private static final String STATS_URI = "/stats";
 
     @PostMapping(HIT_URI)
+    @ResponseStatus(HttpStatus.CREATED)
     public Mono<String> saveRequest(@RequestBody RequestDto dto) {
         log.info("POST for new RequestDto {}", dto);
         return statService.saveRequest(dto);
@@ -35,6 +37,9 @@ public class HitController {
                                     @RequestParam(required = false, defaultValue = "false") boolean unique
     ) {
         log.info("GET stats, start={}, end={}, uris={}, unique={}", start, end, uris, unique);
+        if (start.isAfter(end)) {
+            throw new IllegalArgumentException("Start time must be before end time");
+        }
         return statService.getStats(start, end, uris, unique);
     }
 

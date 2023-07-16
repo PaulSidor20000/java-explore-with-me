@@ -1,40 +1,94 @@
 package ru.practicum.ewm.exceptions;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.reactive.function.server.ServerResponse;
+import reactor.core.publisher.Mono;
 
-import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import javax.validation.ConstraintViolationException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.util.List;
 
 @Slf4j
-@RestControllerAdvice
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ErrorHandler {
-    public static final String A_ERROR = "error";
-    public static final String LOG_ERROR = "Error message: {}";
-    public static final String SERVER_ERROR = "Server error:";
+    private static final String LOG_ERROR = "Error message: {}";
+    private static final String DB_REASON = "Integrity constraint has been violated.";
+    private static final String NOT_VALID_REASON = "Incorrectly made request.";
 
-    @ExceptionHandler
-    public ResponseEntity<Map<String, String>> validationAnnotationHandler(MethodArgumentNotValidException error) {
-        log.warn(LOG_ERROR, error.getMessage());
-        return ResponseEntity.status(400).body(error.getFieldErrors().stream()
-                .collect(Collectors.toMap(FieldError::getField, Objects.requireNonNull(FieldError::getDefaultMessage))));
+    public static Mono<ServerResponse> handler(Throwable error) {
+        if (isStatus400(error)) {
+            return response(error, HttpStatus.BAD_REQUEST);
+        }
+        if (isStatus404(error)) {
+            return response(error, HttpStatus.NOT_FOUND);
+        }
+        if (isStatus409(error)) {
+            return response(error, HttpStatus.CONFLICT);
+        }
+        return response(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler
-    public ResponseEntity<Map<String, String>> validationHandler(RuntimeException error) {
+    public static Mono<ServerResponse> response(Throwable error, HttpStatus status) {
         log.warn(LOG_ERROR, error.getMessage());
-        return ResponseEntity.status(400).body(Map.of(A_ERROR, error.getMessage()));
+
+        return ServerResponse
+                .status(status)
+                .bodyValue(ApiError.builder()
+                        .message(error.getMessage())
+                        .reason(getReasonMessage(error))
+                        .status(getApiErrorStatus(error, status))
+                        .errors(getErrorList(error))
+                        .build());
     }
 
-    @ExceptionHandler
-    public ResponseEntity<Map<String, String>> otherServerErrorsHandler(Throwable error) {
-        log.warn(LOG_ERROR, error.getMessage());
-        return ResponseEntity.status(500).body(Map.of(SERVER_ERROR, error.getMessage()));
+    private static List<String> getErrorList(Throwable error) {
+        StringWriter out = new StringWriter();
+        error.printStackTrace(new PrintWriter(out));
+
+        return List.of(out.toString());
+    }
+
+    private static String getReasonMessage(Throwable error) {
+        if (error instanceof DataIntegrityViolationException) {
+            return DB_REASON;
+        } else if (error instanceof MethodArgumentNotValidException ||
+                error instanceof ConstraintViolationException) {
+            return NOT_VALID_REASON;
+        }
+        return error.getLocalizedMessage();
+    }
+
+    private static HttpStatus getApiErrorStatus(Throwable error, HttpStatus status) {
+        if (error instanceof EventConditionException ||
+                error instanceof RequestConditionException) {
+            return HttpStatus.FORBIDDEN;
+        }
+        return status;
+    }
+
+    public static boolean isStatus400(Throwable error) {
+        return error instanceof ConstraintViolationException ||
+                error instanceof MethodArgumentNotValidException ||
+                error instanceof EventConditionException ||
+                error instanceof BadRequestException;
+    }
+
+    public static boolean isStatus404(Throwable error) {
+        return error instanceof CategoryNotFoundException ||
+                error instanceof UserNotFoundException ||
+                error instanceof EventNotFoundException;
+    }
+
+    public static boolean isStatus409(Throwable error) {
+        return error instanceof DataIntegrityViolationException ||
+                error instanceof RequestConditionException ||
+                error instanceof CategoryConditionException;
     }
 
 }
