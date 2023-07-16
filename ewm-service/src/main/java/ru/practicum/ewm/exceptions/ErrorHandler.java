@@ -10,7 +10,8 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
 import javax.validation.ConstraintViolationException;
-import java.util.Arrays;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.List;
 
 @Slf4j
@@ -42,8 +43,15 @@ public class ErrorHandler {
                         .message(error.getMessage())
                         .reason(getReasonMessage(error))
                         .status(getApiErrorStatus(error, status))
-                        .errors(List.of(Arrays.toString(error.getStackTrace())))
+                        .errors(getErrorList(error))
                         .build());
+    }
+
+    private static List<String> getErrorList(Throwable error) {
+        StringWriter out = new StringWriter();
+        error.printStackTrace(new PrintWriter(out));
+
+        return List.of(out.toString());
     }
 
     private static String getReasonMessage(Throwable error) {

@@ -36,24 +36,6 @@ public class ErrorHandler {
                 .collect(Collectors.toMap(FieldError::getField, Objects.requireNonNull(FieldError::getDefaultMessage))));
     }
 
-//    @ExceptionHandler
-//    public ResponseEntity<Map<String, String>> validationEntityHandler(EntityNotFoundException error) {
-//        log.warn(LOG_ERROR, error.getMessage());
-//        return ResponseEntity.status(404).body(Map.of(A_ERROR, error.getMessage()));
-//    }
-//
-//    @ExceptionHandler
-//    public ResponseEntity<Map<String, String>> validationBookingMatchToEntityHandler(BookingNotMatchException error) {
-//        log.warn(LOG_ERROR, error.getMessage());
-//        return ResponseEntity.status(404).body(Map.of(A_ERROR, error.getMessage()));
-//    }
-//
-//    @ExceptionHandler
-//    public ResponseEntity<Map<String, String>> validationEmailHandler(EmailDuplicateException error) {
-//        log.warn(LOG_ERROR, error.getMessage());
-//        return ResponseEntity.status(409).body(Map.of(A_ERROR, error.getMessage()));
-//    }
-
     @ExceptionHandler
     public ResponseEntity<Map<String, String>> validationDBDataHandler(DataIntegrityViolationException error) {
         log.warn(LOG_ERROR, error.getMessage());
