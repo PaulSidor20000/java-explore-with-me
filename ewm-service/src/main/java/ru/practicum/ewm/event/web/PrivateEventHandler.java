@@ -8,12 +8,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 import ru.practicum.ewm.event.dto.EventMapper;
 import ru.practicum.ewm.event.dto.EventRequestStatusUpdateRequest;
 import ru.practicum.ewm.event.dto.NewEventDto;
 import ru.practicum.ewm.event.dto.UpdateEventUserRequest;
 import ru.practicum.ewm.event.service.PrivateEventService;
 import ru.practicum.ewm.exceptions.ErrorHandler;
+import ru.practicum.ewm.locations.service.AdminLocationService;
 import ru.practicum.ewm.utils.DtoValidator;
 import ru.practicum.ewm.utils.EventValidator;
 
@@ -21,6 +23,7 @@ import ru.practicum.ewm.utils.EventValidator;
 @RequiredArgsConstructor
 public class PrivateEventHandler {
     private final PrivateEventService service;
+    private final AdminLocationService locationService;
     private final EventMapper mapper;
     private final DtoValidator validator;
     private static final String USER_ID = "userId";
@@ -44,6 +47,8 @@ public class PrivateEventHandler {
         return request.bodyToMono(NewEventDto.class)
                 .doOnNext(validator::validate)
                 .doOnNext(EventValidator::newEventValidator)
+                .publishOn(Schedulers.boundedElastic())   // TODO publishOn
+                .doOnNext(dto -> locationService.createLocation(dto.getLocation()).subscribe())
                 .map(dto -> mapper.merge(userId, dto))
                 .flatMap(service::createNewEvent)
                 .flatMap(dto ->

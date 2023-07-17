@@ -17,20 +17,20 @@ public interface EventMapper {
     @Mapping(target = "userId", source = "userId")
     @Mapping(target = "categoryId", source = "dto.category")
     @Mapping(target = "state", expression = "java(EventState.PENDING)")
-    @Mapping(target = "lat", source = "dto.location", qualifiedByName = "getLatitude")
-    @Mapping(target = "lon", source = "dto.location", qualifiedByName = "getLongitude")
+//    @Mapping(target = "lat", source = "dto.location", qualifiedByName = "getLatitude")
+//    @Mapping(target = "lon", source = "dto.location", qualifiedByName = "getLongitude")
     @Mapping(target = "createdOn", expression = "java(LocalDateTime.now().format(DateTimeFormatter.ofPattern(\"yyyy-MM-dd HH:mm:ss\")))")
     Event merge(int userId, NewEventDto dto);
 
     @Mapping(target = "state", source = "stateAction", qualifiedByName = "getEventStateOfUserRequest")
-    @Mapping(target = "lat", source = "location", qualifiedByName = "getLatitude")
-    @Mapping(target = "lon", source = "location", qualifiedByName = "getLongitude")
+//    @Mapping(target = "lat", source = "location", qualifiedByName = "getLatitude")
+//    @Mapping(target = "lon", source = "location", qualifiedByName = "getLongitude")
     Event merge(@MappingTarget Event entity, UpdateEventUserRequest dto);
 
     @Mapping(target = "state", source = "stateAction", qualifiedByName = "getEventStateOfAdminRequest")
     @Mapping(target = "publishedOn", source = "stateAction", qualifiedByName = "getPublishedOnDate")
-    @Mapping(target = "lat", source = "location", qualifiedByName = "getLatitude")
-    @Mapping(target = "lon", source = "location", qualifiedByName = "getLongitude")
+//    @Mapping(target = "lat", source = "location", qualifiedByName = "getLatitude")
+//    @Mapping(target = "lon", source = "location", qualifiedByName = "getLongitude")
     Event merge(@MappingTarget Event entity, UpdateEventAdminRequest dto);
 
     @Mapping(target = "views", source = "hits")
@@ -39,21 +39,21 @@ public interface EventMapper {
     @Mapping(target = "views", source = "hits")
     EventShortDto enrich(@MappingTarget EventShortDto dto, ViewStats viewStats);
 
-    @Named(value = "getLatitude")
-    default Float getLatitude(Location location) {
-        if (location != null) {
-            return location.getLat();
-        }
-        return null;
-    }
-
-    @Named(value = "getLongitude")
-    default Float getLongitude(Location location) {
-        if (location != null) {
-            return location.getLon();
-        }
-        return null;
-    }
+//    @Named(value = "getLatitude")
+//    default Float getLatitude(LocationDto locationDto) {
+//        if (locationDto != null) {
+//            return locationDto.getLat();
+//        }
+//        return null;
+//    }
+//
+//    @Named(value = "getLongitude")
+//    default Float getLongitude(LocationDto locationDto) {
+//        if (locationDto != null) {
+//            return locationDto.getLon();
+//        }
+//        return null;
+//    }
 
     @Named(value = "getEventStateOfAdminRequest")
     default EventState getEventStateOfAdminRequest(EventStateAction stateAction) {

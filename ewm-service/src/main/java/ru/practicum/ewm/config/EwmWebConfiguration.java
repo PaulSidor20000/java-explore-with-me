@@ -14,19 +14,30 @@ public class EwmWebConfiguration {
     private final ObjectMapper mapper;
 
     @Value("${stat.server.url}")
-    private String serverUrl;
+    private String statServerUrl;
+
+    @Value("${geo.server.url}")
+    private String geoServerUrl;
 
     @Bean
     public StatClient statClient() {
         return StatClient.builder()
-                .client(getWebClient())
+                .client(getWebClient(statServerUrl))
                 .mapper(mapper)
                 .build();
     }
 
-    private WebClient getWebClient() {
+    @Bean
+    public GeoClient getGeoClient() {
+        return GeoClient.builder()
+                .client(getWebClient(geoServerUrl))
+                .mapper(mapper)
+                .build();
+    }
+
+    private WebClient getWebClient(String baseUrl) {
         return WebClient.builder()
-                .baseUrl(serverUrl)
+                .baseUrl(baseUrl)
                 .build();
     }
 

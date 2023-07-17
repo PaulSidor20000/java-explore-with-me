@@ -13,4 +13,6 @@ public interface EventRepository extends R2dbcRepository<Event, Integer>, Custom
 
     Flux<Event> findByCategoryId(int categoryId);
 
+    Flux<Event> findByLocationId(int locationId);
+
 }
