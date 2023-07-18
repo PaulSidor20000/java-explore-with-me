@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
+import ru.practicum.geoclient.client.GeoClient;
 import ru.practicum.statclient.client.StatClient;
 
 @Configuration
@@ -31,7 +32,6 @@ public class EwmWebConfiguration {
     public GeoClient getGeoClient() {
         return GeoClient.builder()
                 .client(getWebClient(geoServerUrl))
-                .mapper(mapper)
                 .build();
     }
 
