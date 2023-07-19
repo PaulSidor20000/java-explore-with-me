@@ -20,6 +20,9 @@ public class EwmWebConfiguration {
     @Value("${geo.server.url}")
     private String geoServerUrl;
 
+    @Value("${geo.apikey}")
+    private String geoApiKey;
+
     @Bean
     public StatClient statClient() {
         return StatClient.builder()
@@ -31,7 +34,8 @@ public class EwmWebConfiguration {
     @Bean
     public GeoClient getGeoClient() {
         return GeoClient.builder()
-                .client(getWebClient(geoServerUrl))
+                .apikey(geoApiKey)
+                .baseUrl(geoServerUrl)
                 .build();
     }
 

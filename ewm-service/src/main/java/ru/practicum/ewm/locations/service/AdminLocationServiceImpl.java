@@ -2,7 +2,6 @@ package ru.practicum.ewm.locations.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import ru.practicum.ewm.event.entity.Event;
 import ru.practicum.ewm.event.repository.EventRepository;
@@ -11,6 +10,8 @@ import ru.practicum.ewm.locations.dto.LocationDto;
 import ru.practicum.ewm.locations.dto.LocationMapper;
 import ru.practicum.ewm.locations.dto.NewLocationDto;
 import ru.practicum.ewm.locations.repository.LocationRepository;
+import ru.practicum.geoclient.client.GeoClient;
+import ru.practicum.geoclient.client.model.GeoData;
 
 @Service
 @RequiredArgsConstructor
@@ -18,15 +19,21 @@ public class AdminLocationServiceImpl implements AdminLocationService {
     private final LocationMapper locationMapper;
     private final LocationRepository locationRepository;
     private final EventRepository eventRepository;
-    private final WebClient webClient;
+    private final GeoClient geoClient;
 
     @Override
     public Mono<LocationDto> createLocation(NewLocationDto dto) {
-
-
-        return Mono.just(locationMapper.map(dto))
+        return getGeoData(dto)
+                .map(locationMapper::map)
                 .flatMap(locationRepository::save)
                 .map(locationMapper::map);
+    }
+
+    private Mono<GeoData> getGeoData(NewLocationDto dto) {
+//        if (dto.getName() != null && dto.getLon() != null && dto.getLat() != null) {
+//            return Mono.just(locationMapper.map(dto));
+//        }
+        return dto.getName() != null ? geoClient.get(dto.getName()) : geoClient.get(dto.getLon(), dto.getLat());
     }
 
     @Override

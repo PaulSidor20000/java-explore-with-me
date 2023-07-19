@@ -21,7 +21,7 @@ public class AdminLocationHandler {
 
     public Mono<ServerResponse> createLocation(ServerRequest request) {
         return request.bodyToMono(NewLocationDto.class)
-                .doOnNext(validator::validate)
+//                .doOnNext(validator::validate)
                 .flatMap(locationService::createLocation)
                 .flatMap(dto ->
                         ServerResponse

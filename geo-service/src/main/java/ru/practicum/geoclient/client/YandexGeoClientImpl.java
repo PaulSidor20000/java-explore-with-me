@@ -1,50 +1,90 @@
 package ru.practicum.geoclient.client;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import ru.practicum.geoclient.client.model.GeoData;
 
 class YandexGeoClientImpl implements GeoClient {
     private final WebClient client;
     private final ObjectMapper mapper;
-
-    // https://geocode-maps.yandex.ru/1.x
-    //  ? apikey=<string>
-    //  & geocode=<string>
-
-//    @Value("${geo.apikey}")
     private final String apikey;
-
-//    @Value("${geo.server.url}")
-    private final String geoServerUrl;
+    private static final String ARRAY_POINTS = "/response/GeoObjectCollection/featureMember";
+    private static final String POINT_NAME = "/GeoObject/metaDataProperty/GeocoderMetaData/text";
+    private static final String POINT_COORDINATES = "/GeoObject/Point/pos";
 
     public YandexGeoClientImpl(String geoServerUrl, String apikey) {
         this.client = WebClient.builder().baseUrl(geoServerUrl).build();
         this.mapper = new ObjectMapper();
-        this.geoServerUrl = geoServerUrl;
         this.apikey = apikey;
     }
 
     @Override
-    public Flux<String> get(String name) {
-        return get(geoServerUrl, apikey, name);
+    public Mono<GeoData> get(String name) {
+        return get(apikey, name)
+                .map(this::getGeoData);
     }
 
     @Override
-    public Flux<String> get(float lat, float lon) {
-        return get(geoServerUrl, apikey, String.format("%s, %s", lat, lon));
+    public Mono<GeoData> get(float lat, float lon) {
+        return get(apikey, String.format("%s, %s", lat, lon))
+                .map(this::getGeoData);
     }
 
-    public Flux<String> get(String geoServerUrl, String apikey, String geocode) {
+    public Mono<String> get(String apikey, String geocode) {
         return client.get()
                 .uri(uriBuilder ->
                         uriBuilder
-                                .path(geoServerUrl)
                                 .queryParam("apikey", apikey)
                                 .queryParam("geocode", geocode)
+                                .queryParam("format", "json")
                                 .build())
                 .retrieve()
-                .bodyToFlux(String.class);
+                .bodyToMono(String.class);
     }
+
+    private GeoData getGeoData(String geoJson) {
+        JsonNode root;
+        try {
+            root = mapper.readTree(geoJson);
+        } catch (JsonProcessingException e) {
+            throw new UnreadableGeoJsonException(e.getMessage());
+        }
+        return getGeoData(root);
+    }
+
+    private GeoData getGeoData(JsonNode root) {
+        if (root == null) {
+            return null;
+        }
+        JsonNode featureMemberRoot = root.at(ARRAY_POINTS);
+        String[] coordinates;
+        String name;
+
+        if (featureMemberRoot.isArray()) {
+            name = featureMemberRoot.get(0).at(POINT_NAME).asText();
+            coordinates = featureMemberRoot.get(0).at(POINT_COORDINATES).asText().split(" ");
+        } else {
+            throw new UnreadableGeoJsonException("Unreadable GeoObject, seems like Api data was changed");
+        }
+        return GeoData.builder()
+                .lon(Float.parseFloat(coordinates[0]))
+                .lat(Float.parseFloat(coordinates[1]))
+                .name(name)
+                .build();
+    }
+
+//    private GeoData toGeo(String geoJson) {
+//        Root root;
+//        try {
+//            root = mapper.readValue(geoJson, new TypeReference<>() {
+//            });
+//        } catch (JsonProcessingException e) {
+//            throw new UnreadableGeoJsonException(e.getMessage());
+//        }
+//        return null;
+//    }
 
 }

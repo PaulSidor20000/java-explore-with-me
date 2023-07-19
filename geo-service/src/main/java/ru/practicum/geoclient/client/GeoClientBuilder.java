@@ -1,24 +1,8 @@
 package ru.practicum.geoclient.client;
 
-import org.springframework.web.reactive.function.client.WebClient;
-
 public class GeoClientBuilder implements GeoClient.Builder {
-    private Object client;
-    private Object mapper;
     private String apikey;
     private String geoServerUrl;
-
-    @Override
-    public <T> GeoClient.Builder client(T client) {
-        this.client = client;
-        return this;
-    }
-
-    @Override
-    public <T> GeoClient.Builder mapper(T mapper) {
-        this.mapper = mapper;
-        return this;
-    }
 
     @Override
     public GeoClient.Builder apikey(String apikey) {
@@ -27,8 +11,8 @@ public class GeoClientBuilder implements GeoClient.Builder {
     }
 
     @Override
-    public GeoClient.Builder baseUrl(String baseUrl) {
-        this.geoServerUrl = baseUrl;
+    public GeoClient.Builder baseUrl(String url) {
+        this.geoServerUrl = url;
         return this;
     }
 

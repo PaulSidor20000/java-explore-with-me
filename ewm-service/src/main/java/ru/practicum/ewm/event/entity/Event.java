@@ -20,6 +20,9 @@ public class Event {
     @Column(value = "category_id")
     private int categoryId;
 
+    @Column(value = "location_id")
+    private int locationId;
+
     private String annotation;
 
     private String description;
