@@ -16,6 +16,7 @@ public interface EventMapper {
 
     @Mapping(target = "userId", source = "userId")
     @Mapping(target = "categoryId", source = "dto.category")
+    @Mapping(target = "locationId", source = "dto.location.id")
     @Mapping(target = "state", expression = "java(EventState.PENDING)")
 //    @Mapping(target = "lat", source = "dto.location", qualifiedByName = "getLatitude")
 //    @Mapping(target = "lon", source = "dto.location", qualifiedByName = "getLongitude")

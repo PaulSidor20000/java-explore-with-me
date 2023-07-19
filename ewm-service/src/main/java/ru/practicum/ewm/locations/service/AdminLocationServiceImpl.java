@@ -3,9 +3,12 @@ package ru.practicum.ewm.locations.service;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
+import ru.practicum.ewm.event.dto.NewEventDto;
 import ru.practicum.ewm.event.entity.Event;
 import ru.practicum.ewm.event.repository.EventRepository;
+import ru.practicum.ewm.exceptions.BadRequestException;
 import ru.practicum.ewm.exceptions.CategoryConditionException;
+import ru.practicum.ewm.locations.entity.AbstractLocation;
 import ru.practicum.ewm.locations.dto.LocationDto;
 import ru.practicum.ewm.locations.dto.LocationMapper;
 import ru.practicum.ewm.locations.dto.NewLocationDto;
@@ -29,11 +32,18 @@ public class AdminLocationServiceImpl implements AdminLocationService {
                 .map(locationMapper::map);
     }
 
-    private Mono<GeoData> getGeoData(NewLocationDto dto) {
-//        if (dto.getName() != null && dto.getLon() != null && dto.getLat() != null) {
-//            return Mono.just(locationMapper.map(dto));
-//        }
-        return dto.getName() != null ? geoClient.get(dto.getName()) : geoClient.get(dto.getLon(), dto.getLat());
+    @Override
+    public Mono<NewEventDto> createLocationFromEvent(NewEventDto dto) {
+        return  getGeoData(dto.getLocation())
+                .map(locationMapper::map)
+                .flatMap(locationRepository::save)
+                .map(location -> {
+                    dto.getLocation().setId(location.getId());
+                    dto.getLocation().setName(location.getName());
+                    dto.getLocation().setLat(location.getLat());
+                    dto.getLocation().setLon(location.getLon());
+                    return dto;
+                });
     }
 
     @Override
@@ -49,6 +59,20 @@ public class AdminLocationServiceImpl implements AdminLocationService {
                 .map(location -> locationMapper.merge(location, dto))
                 .flatMap(locationRepository::save)
                 .map(locationMapper::map);
+    }
+
+    private <T extends AbstractLocation> Mono<GeoData> getGeoData(T dto) {
+        if (dto.getName() != null && dto.getLon() != null && dto.getLat() != null) {
+            return Mono.just(locationMapper.map(dto));
+        }
+        if (dto.getLon() != null && dto.getLat() != null) {
+            return geoClient.get(dto.getLon(), dto.getLat());
+        }
+        if (dto.getName() != null) {
+            return geoClient.get(dto.getName());
+        } else {
+            throw new BadRequestException("Wrong request for getting geo data");
+        }
     }
 
     private void doThrow(Event event) {

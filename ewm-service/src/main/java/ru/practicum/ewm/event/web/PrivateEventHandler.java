@@ -47,8 +47,14 @@ public class PrivateEventHandler {
         return request.bodyToMono(NewEventDto.class)
                 .doOnNext(validator::validate)
                 .doOnNext(EventValidator::newEventValidator)
-                .publishOn(Schedulers.boundedElastic())   // TODO publishOn
-                .doOnNext(dto -> locationService.createLocation(dto.getLocation()).subscribe())
+                .flatMap(locationService::createLocationFromEvent)
+
+
+                .doOnNext(System.err::println)
+
+//                .publishOn(Schedulers.boundedElastic())   // TODO publishOn
+//                .doOnNext(dto -> locationService.createLocationFromEvent(dto).subscribe())
+
                 .map(dto -> mapper.merge(userId, dto))
                 .flatMap(service::createNewEvent)
                 .flatMap(dto ->

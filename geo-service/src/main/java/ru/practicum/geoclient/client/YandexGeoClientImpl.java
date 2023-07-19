@@ -30,7 +30,12 @@ class YandexGeoClientImpl implements GeoClient {
     @Override
     public Mono<GeoData> get(float lat, float lon) {
         return get(apikey, String.format("%s, %s", lat, lon))
-                .map(this::getGeoData);
+                .map(this::getGeoData)
+                .map(geoData -> {
+                    geoData.setLat(lat);
+                    geoData.setLon(lon);
+                    return geoData;
+                });
     }
 
     public Mono<String> get(String apikey, String geocode) {

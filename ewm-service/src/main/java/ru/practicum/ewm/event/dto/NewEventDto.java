@@ -1,6 +1,7 @@
 package ru.practicum.ewm.event.dto;
 
 import lombok.Data;
+import ru.practicum.ewm.locations.dto.LocationDto;
 import ru.practicum.ewm.locations.dto.NewLocationDto;
 
 import javax.validation.constraints.NotBlank;
@@ -21,7 +22,7 @@ public class NewEventDto {
 
     private String eventDate;
 
-    private NewLocationDto location;
+    private LocationDto location;
 
     private Boolean paid;
 
