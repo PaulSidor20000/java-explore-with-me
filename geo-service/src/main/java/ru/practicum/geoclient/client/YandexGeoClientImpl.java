@@ -14,6 +14,8 @@ class YandexGeoClientImpl implements GeoClient {
     private static final String ARRAY_POINTS = "/response/GeoObjectCollection/featureMember";
     private static final String POINT_NAME = "/GeoObject/metaDataProperty/GeocoderMetaData/text";
     private static final String POINT_COORDINATES = "/GeoObject/Point/pos";
+    private static final String RAW_COORDINATES = "/response/GeoObjectCollection/metaDataProperty/GeocoderResponseMetaData/Point/pos";
+    private static final String RAW_REQUEST = "/response/GeoObjectCollection/metaDataProperty/GeocoderResponseMetaData/request";
 
     public YandexGeoClientImpl(String geoServerUrl, String apikey) {
         this.client = WebClient.builder().baseUrl(geoServerUrl).build();
@@ -28,14 +30,14 @@ class YandexGeoClientImpl implements GeoClient {
     }
 
     @Override
-    public Mono<GeoData> get(float lat, float lon) {
-        return get(apikey, String.format("%s, %s", lat, lon))
-                .map(this::getGeoData)
-                .map(geoData -> {
-                    geoData.setLat(lat);
-                    geoData.setLon(lon);
-                    return geoData;
-                });
+    public Mono<GeoData> get(float lon, float lat) {
+        return get(apikey, String.format("%s, %s", lon, lat))
+                .map(this::getGeoData);
+//                .map(geoData -> {
+//                    geoData.setLon(lon);
+//                    geoData.setLat(lat);
+//                    return geoData;
+//                });
     }
 
     public Mono<String> get(String apikey, String geocode) {
@@ -69,6 +71,9 @@ class YandexGeoClientImpl implements GeoClient {
         String name;
 
         if (featureMemberRoot.isArray()) {
+            if (featureMemberRoot.size() == 0) {
+                return getUnreachableLocation(root);
+            }
             name = featureMemberRoot.get(0).at(POINT_NAME).asText();
             coordinates = featureMemberRoot.get(0).at(POINT_COORDINATES).asText().split(" ");
         } else {
@@ -78,6 +83,24 @@ class YandexGeoClientImpl implements GeoClient {
                 .lon(Float.parseFloat(coordinates[0]))
                 .lat(Float.parseFloat(coordinates[1]))
                 .name(name)
+                .build();
+    }
+
+    private static GeoData getUnreachableLocation(JsonNode root) {
+        String[] coordinates;
+        if (root.at(RAW_COORDINATES).asText().isEmpty()) {
+            return GeoData.builder()
+                    .name(String.format("Unreachable location or bad request=%s", root.at(RAW_REQUEST).asText()))
+                    .build();
+        }
+        coordinates = root.at(RAW_COORDINATES).asText().split(" ");
+
+        return GeoData.builder()
+                .lon(Float.parseFloat(coordinates[0]))
+                .lat(Float.parseFloat(coordinates[1]))
+                .name(String.format("Unreachable location on: lon=%s, lat=%s",
+                        Float.parseFloat(coordinates[0]),
+                        Float.parseFloat(coordinates[1])))
                 .build();
     }
 

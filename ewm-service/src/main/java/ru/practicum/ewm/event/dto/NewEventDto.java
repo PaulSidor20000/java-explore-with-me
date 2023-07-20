@@ -2,7 +2,6 @@ package ru.practicum.ewm.event.dto;
 
 import lombok.Data;
 import ru.practicum.ewm.locations.dto.LocationDto;
-import ru.practicum.ewm.locations.dto.NewLocationDto;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;

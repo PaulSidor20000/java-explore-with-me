@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 import ru.practicum.ewm.event.dto.EventMapper;
 import ru.practicum.ewm.event.dto.EventRequestStatusUpdateRequest;
 import ru.practicum.ewm.event.dto.NewEventDto;
@@ -48,13 +47,6 @@ public class PrivateEventHandler {
                 .doOnNext(validator::validate)
                 .doOnNext(EventValidator::newEventValidator)
                 .flatMap(locationService::createLocationFromEvent)
-
-
-                .doOnNext(System.err::println)
-
-//                .publishOn(Schedulers.boundedElastic())   // TODO publishOn
-//                .doOnNext(dto -> locationService.createLocationFromEvent(dto).subscribe())
-
                 .map(dto -> mapper.merge(userId, dto))
                 .flatMap(service::createNewEvent)
                 .flatMap(dto ->

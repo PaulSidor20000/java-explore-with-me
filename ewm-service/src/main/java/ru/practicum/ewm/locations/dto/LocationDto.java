@@ -1,6 +1,5 @@
 package ru.practicum.ewm.locations.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -14,12 +13,12 @@ import java.util.Map;
 public class LocationDto extends AbstractLocation {
 
     public static LocationDto map(Map<String, Object> rows) {
-        if (rows.get("lat") != null) {
+        if (rows.get("lon") != null && rows.get("lat") != null) {
             return LocationDto.builder()
                     .id((Integer) rows.get("location_id"))
                     .name((String) rows.get("location_name"))
-                    .lat((Float) rows.get("lat"))
                     .lon((Float) rows.get("lon"))
+                    .lat((Float) rows.get("lat"))
                     .build();
         }
         return null;

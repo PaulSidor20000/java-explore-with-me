@@ -8,10 +8,10 @@ import ru.practicum.ewm.event.entity.Event;
 import ru.practicum.ewm.event.repository.EventRepository;
 import ru.practicum.ewm.exceptions.BadRequestException;
 import ru.practicum.ewm.exceptions.CategoryConditionException;
-import ru.practicum.ewm.locations.entity.AbstractLocation;
 import ru.practicum.ewm.locations.dto.LocationDto;
 import ru.practicum.ewm.locations.dto.LocationMapper;
 import ru.practicum.ewm.locations.dto.NewLocationDto;
+import ru.practicum.ewm.locations.entity.AbstractLocation;
 import ru.practicum.ewm.locations.repository.LocationRepository;
 import ru.practicum.geoclient.client.GeoClient;
 import ru.practicum.geoclient.client.model.GeoData;
@@ -35,13 +35,16 @@ public class AdminLocationServiceImpl implements AdminLocationService {
     @Override
     public Mono<NewEventDto> createLocationFromEvent(NewEventDto dto) {
         return  getGeoData(dto.getLocation())
+                .map(geoData -> {
+                    geoData.setLon(dto.getLocation().getLon());
+                    geoData.setLat(dto.getLocation().getLat());
+                    return geoData;
+                })
                 .map(locationMapper::map)
                 .flatMap(locationRepository::save)
                 .map(location -> {
                     dto.getLocation().setId(location.getId());
                     dto.getLocation().setName(location.getName());
-                    dto.getLocation().setLat(location.getLat());
-                    dto.getLocation().setLon(location.getLon());
                     return dto;
                 });
     }
