@@ -34,16 +34,27 @@ public class CustomEventRepositoryImpl implements CustomEventRepository {
 
     @Override
     public Flux<EventFullDto> getAdminEventFullDtos(MultiValueMap<String, String> params) {
-        String query = String.format("%s%s%s%s%s%s", EVENT_FULL_JOIN,
+        String query = String.format("%s%s%s%s%s%s%s", EVENT_FULL_JOIN,
                 params.get("users") != null ? " WHERE e.user_id IN (:users)" : " WHERE e.user_id IS NOT NULL",
                 params.get("categories") != null ? " AND e.category_id IN (:cat)" : " AND e.category_id IS NOT NULL",
                 params.get("states") != null ? " AND e.event_state IN (:states)" : " AND e.event_state IS NOT NULL",
                 params.get("rangeStart") != null && params.get("rangeEnd") != null
                         ? " AND e.event_date between (:start) AND (:end)"
                         : " AND e.event_date::timestamp > current_timestamp",
-                " GROUP BY e.event_id, l.location_id, category_name, user_name ORDER BY e.event_id DESC LIMIT (:size)::bigint OFFSET (:from)::bigint");
+                params.get("lon") != null && params.get("lat") != null && params.get("radius") != null
+                        ? " AND distance(l.lat, l.lon, :lat2::real, :lon2::real) < :radius::real"
+                        : "",
+                " GROUP BY e.event_id, l.location_id, category_name, user_name" +
+                        " ORDER BY e.event_id DESC" +
+                        " LIMIT (:size)::bigint" +
+                        " OFFSET (:from)::bigint");
         DatabaseClient.GenericExecuteSpec bindings = client.sql(query);
 
+        if (params.get("lon") != null && params.get("lat") != null && params.get("radius") != null) {
+            bindings = bindings.bind("radius", params.get("radius"))
+                    .bind("lon2", params.get("lon"))
+                    .bind("lat2", params.get("lat"));
+        }
         if (params.get("users") != null) {
             bindings = bindings.bind("users", params.get("users").stream()
                     .map(Integer::parseInt).collect(Collectors.toList()));
@@ -80,7 +91,9 @@ public class CustomEventRepositoryImpl implements CustomEventRepository {
                         : " AND e.event_date::timestamp > current_timestamp",
                 " GROUP BY e.event_id, e.event_date, e.participant_limit, category_name, user_name" +
                         " HAVING (e.participant_limit - (count(r.*) FILTER ( WHERE request_status = 'CONFIRMED')) <= 0) = (:available)::boolean" +
-                        " ORDER BY (:sort) DESC LIMIT (:size)::bigint OFFSET (:from)::bigint");
+                        " ORDER BY (:sort) DESC" +
+                        " LIMIT (:size)::bigint" +
+                        " OFFSET (:from)::bigint");
         DatabaseClient.GenericExecuteSpec bindings = client.sql(query);
 
         if (params.get("categories") != null) {

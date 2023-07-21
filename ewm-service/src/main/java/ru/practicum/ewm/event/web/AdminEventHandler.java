@@ -9,6 +9,7 @@ import reactor.core.publisher.Mono;
 import ru.practicum.ewm.event.dto.UpdateEventAdminRequest;
 import ru.practicum.ewm.event.service.AdminEventService;
 import ru.practicum.ewm.exceptions.ErrorHandler;
+import ru.practicum.ewm.locations.service.AdminLocationService;
 import ru.practicum.ewm.utils.DtoValidator;
 import ru.practicum.ewm.utils.EventValidator;
 
@@ -17,6 +18,7 @@ import ru.practicum.ewm.utils.EventValidator;
 public class AdminEventHandler {
     private final DtoValidator validator;
     private final AdminEventService service;
+    private final AdminLocationService locationService;
     private static final String EVENT_ID = "eventId";
 
     public Mono<ServerResponse> findEvents(ServerRequest request) {
@@ -39,6 +41,12 @@ public class AdminEventHandler {
                     if (dto.getAnnotation() != null && dto.getDescription() != null && dto.getTitle() != null) {
                         validator.validate(dto);
                     }
+                })
+                .flatMap(updateEventAdminRequest -> {
+                    if (updateEventAdminRequest.getLocation() != null) {
+                        return locationService.createLocationFromEvent(updateEventAdminRequest);
+                    }
+                    return Mono.just(updateEventAdminRequest);
                 })
                 .flatMap(dto -> service.updateEvent(eventId, dto))
                 .flatMap(dto ->

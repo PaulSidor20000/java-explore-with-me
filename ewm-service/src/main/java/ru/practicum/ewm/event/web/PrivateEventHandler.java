@@ -73,6 +73,12 @@ public class PrivateEventHandler {
 
         return request.bodyToMono(UpdateEventUserRequest.class)
                 .doOnNext(validator::validate)
+                .flatMap(updateEventUserRequest -> {
+                    if (updateEventUserRequest.getLocation() != null) {
+                        return locationService.createLocationFromEvent(updateEventUserRequest);
+                    }
+                    return Mono.just(updateEventUserRequest);
+                })
                 .flatMap(dto -> service.updateUserEventById(userId, eventId, dto))
                 .flatMap(dto ->
                         ServerResponse

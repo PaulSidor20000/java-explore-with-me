@@ -15,8 +15,7 @@ public class LocationRouter {
                 .path("/admin/locations", builder ->
                         builder
                                 .POST(handler::createLocation)
-                                .DELETE("/{locationsId}", handler::deleteLocation)
-                                .PATCH("/{locationsId}", handler::updateLocation))
+                                .DELETE("/{locationsId}", handler::deleteLocation))
                 .build();
     }
 
@@ -25,8 +24,8 @@ public class LocationRouter {
         return RouterFunctions.route()
                 .path("/locations", builder ->
                         builder
-                                .GET(handler::findLocations)
-                                .GET("/{locationsId}", handler::findLocationById))
+                                .GET("/{locationsId}", handler::findLocationById)
+                                .GET(handler::findLocations))
                 .build();
     }
 

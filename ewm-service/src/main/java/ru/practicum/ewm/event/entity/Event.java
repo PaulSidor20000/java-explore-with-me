@@ -44,10 +44,6 @@ public class Event {
     @Column(value = "event_state")
     private EventState state;
 
-//    private float lat;
-//
-//    private float lon;
-
     @Column(value = "created_on")
     private String createdOn;
 

@@ -21,8 +21,8 @@ public class PublicLocationServiceImpl implements PublicLocationService {
     }
 
     @Override
-    public Mono<LocationDto> findLocationById(int categoryId) {
-        return locationRepository.findById(categoryId)
+    public Mono<LocationDto> findLocationById(int locationId) {
+        return locationRepository.findById(locationId)
                 .map(locationMapper::map);
     }
 

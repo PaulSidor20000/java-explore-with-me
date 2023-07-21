@@ -33,11 +33,6 @@ class YandexGeoClientImpl implements GeoClient {
     public Mono<GeoData> get(float lon, float lat) {
         return get(apikey, String.format("%s, %s", lon, lat))
                 .map(this::getGeoData);
-//                .map(geoData -> {
-//                    geoData.setLon(lon);
-//                    geoData.setLat(lat);
-//                    return geoData;
-//                });
     }
 
     public Mono<String> get(String apikey, String geocode) {
@@ -103,16 +98,5 @@ class YandexGeoClientImpl implements GeoClient {
                         Float.parseFloat(coordinates[1])))
                 .build();
     }
-
-//    private GeoData toGeo(String geoJson) {
-//        Root root;
-//        try {
-//            root = mapper.readValue(geoJson, new TypeReference<>() {
-//            });
-//        } catch (JsonProcessingException e) {
-//            throw new UnreadableGeoJsonException(e.getMessage());
-//        }
-//        return null;
-//    }
 
 }
