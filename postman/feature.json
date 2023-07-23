@@ -525,9 +525,9 @@
 									"const lat = pm.collectionVariables.get('lat');\r",
 									"\r",
 									"pm.test(\"Локация должна быть найдена до выполнения запроса\", function(){\r",
-									"    pm.expect(source.id).to.eql(locationId);\r",
-									"    pm.expect(source.lon).to.eql(lon);\r",
-									"    pm.expect(source.lat).to.eql(lat);\r",
+									"    pm.expect(source.id).to.eql(locationId, 'Идентификтор локации должен совпадать с удаляемым');\r",
+									"    pm.expect(source.lon).to.eql(lon, 'Долгота локации должена совпадать с удаляемой');\r",
+									"    pm.expect(source.lat).to.eql(lat, 'Широта локации должена совпадать с удаляемой');\r",
 									"});\r",
 									"\r",
 									"let body\r",
@@ -544,7 +544,7 @@
 									"        }\r",
 									"\r",
 									"    });\r",
-									"})\r",
+									"});\r",
 									""
 								],
 								"type": "text/javascript"
@@ -929,12 +929,12 @@
 		},
 		{
 			"key": "lat",
-			"value": "-23.2147",
+			"value": "",
 			"type": "string"
 		},
 		{
 			"key": "lon",
-			"value": "-39.2805",
+			"value": "",
 			"type": "string"
 		},
 		{
