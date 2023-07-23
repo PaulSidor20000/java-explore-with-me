@@ -47,7 +47,7 @@ public class EventValidator {
         return Mono.just(entity);
     }
 
-    public static Mono<Event> privateUpdateEventUserRequestValidator(Event entity, UpdateEventUserRequest dto) {
+    public static Mono<Event> privateUpdateEventUserRequestValidator(Event entity, AbstractionEventDto dto) {
         if (entity.getState() == EventState.PUBLISHED) {
             throw new RequestConditionException("Only pending or canceled events can be changed");
         }

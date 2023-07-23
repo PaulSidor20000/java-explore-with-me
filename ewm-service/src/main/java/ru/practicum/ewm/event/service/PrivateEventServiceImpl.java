@@ -44,10 +44,10 @@ public class PrivateEventServiceImpl implements PrivateEventService {
     }
 
     @Override
-    public Mono<EventFullDto> updateUserEventById(int userId, int eventId, AbstractionEventDto dto) {
+    public Mono<EventFullDto> updateUserEventById(int userId, int eventId, UpdateEventUserRequest dto) {
         return eventRepository.findById(eventId)
-                .flatMap(entity -> EventValidator.privateUpdateEventUserRequestValidator(entity, (UpdateEventUserRequest) dto))
-                .map(entity -> eventMapper.merge(entity, (UpdateEventUserRequest) dto))
+                .flatMap(entity -> EventValidator.privateUpdateEventUserRequestValidator(entity, dto))
+                .map(entity -> eventMapper.merge(entity, dto))
                 .flatMap(eventRepository::save)
                 .map(Event::getId)
                 .flatMap(eventRepository::getEventFullDto);
