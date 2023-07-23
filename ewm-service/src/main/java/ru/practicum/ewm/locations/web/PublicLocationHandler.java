@@ -3,13 +3,13 @@ package ru.practicum.ewm.locations.web;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 import ru.practicum.ewm.exceptions.ErrorHandler;
 import ru.practicum.ewm.exceptions.LocationNotFoundException;
 import ru.practicum.ewm.locations.service.PublicLocationService;
+import ru.practicum.ewm.utils.ParamsValidator;
 
 @Component
 @RequiredArgsConstructor
@@ -17,9 +17,9 @@ public class PublicLocationHandler {
     private final PublicLocationService locationService;
 
     public Mono<ServerResponse> findLocations(ServerRequest request) {
-        MultiValueMap<String, String> params = request.queryParams();
-
-        return locationService.findLocations(params)
+        return Mono.just(request.queryParams())
+                .doOnNext(ParamsValidator::validateParams)
+                .flatMapMany(locationService::findLocations)
                 .collectList()
                 .flatMap(dto ->
                         ServerResponse

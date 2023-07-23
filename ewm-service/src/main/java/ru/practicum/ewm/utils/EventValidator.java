@@ -3,11 +3,9 @@ package ru.practicum.ewm.utils;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 import ru.practicum.ewm.event.dto.*;
 import ru.practicum.ewm.event.entity.Event;
-import ru.practicum.ewm.exceptions.BadRequestException;
 import ru.practicum.ewm.exceptions.EventConditionException;
 import ru.practicum.ewm.exceptions.RequestConditionException;
 
@@ -55,17 +53,6 @@ public class EventValidator {
             checkEventDate(LocalDateTime.parse(dto.getEventDate(), formatter));
         }
         return Mono.just(entity);
-    }
-
-    public static void validateParams(MultiValueMap<String, String> params) {
-        if (params.get("rangeStart") != null && params.get("rangeEnd") != null) {
-            LocalDateTime start = LocalDateTime.parse(params.get("rangeStart").get(0), formatter);
-            LocalDateTime end = LocalDateTime.parse(params.get("rangeEnd").get(0), formatter);
-
-            if (start.isAfter(end)) {
-                throw new BadRequestException("Start time must be before end time");
-            }
-        }
     }
 
     private static void checkEventDate(LocalDateTime eventDate) {

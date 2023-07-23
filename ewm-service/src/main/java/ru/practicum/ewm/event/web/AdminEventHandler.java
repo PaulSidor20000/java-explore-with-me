@@ -11,7 +11,7 @@ import ru.practicum.ewm.event.service.AdminEventService;
 import ru.practicum.ewm.exceptions.ErrorHandler;
 import ru.practicum.ewm.locations.service.AdminLocationService;
 import ru.practicum.ewm.utils.DtoValidator;
-import ru.practicum.ewm.utils.EventValidator;
+import ru.practicum.ewm.utils.ParamsValidator;
 
 @Component
 @RequiredArgsConstructor
@@ -23,7 +23,7 @@ public class AdminEventHandler {
 
     public Mono<ServerResponse> findEvents(ServerRequest request) {
         return Mono.just(request.queryParams())
-                .doOnNext(EventValidator::validateParams)
+                .doOnNext(ParamsValidator::validateParams)
                 .flatMapMany(service::findEvents)
                 .collectList()
                 .flatMap(dto ->
