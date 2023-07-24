@@ -66,6 +66,7 @@ public class ErrorHandler {
 
     private static HttpStatus getApiErrorStatus(Throwable error, HttpStatus status) {
         if (error instanceof EventConditionException ||
+                error instanceof LocationConditionException ||
                 error instanceof RequestConditionException) {
             return HttpStatus.FORBIDDEN;
         }
@@ -82,12 +83,14 @@ public class ErrorHandler {
     public static boolean isStatus404(Throwable error) {
         return error instanceof CategoryNotFoundException ||
                 error instanceof UserNotFoundException ||
+                error instanceof LocationNotFoundException ||
                 error instanceof EventNotFoundException;
     }
 
     public static boolean isStatus409(Throwable error) {
         return error instanceof DataIntegrityViolationException ||
                 error instanceof RequestConditionException ||
+                error instanceof LocationConditionException ||
                 error instanceof CategoryConditionException;
     }
 

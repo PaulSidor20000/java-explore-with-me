@@ -3,6 +3,7 @@ package ru.practicum.ewm.event.dto;
 import lombok.Builder;
 import lombok.Data;
 import ru.practicum.ewm.category.dto.CategoryDto;
+import ru.practicum.ewm.locations.dto.LocationDto;
 import ru.practicum.ewm.user.dto.UserShortDto;
 
 import java.util.Map;
@@ -27,7 +28,7 @@ public class EventFullDto {
 
     private UserShortDto initiator;
 
-    private Location location;
+    private LocationDto location;
 
     private Boolean paid;
 
@@ -60,7 +61,7 @@ public class EventFullDto {
                     .title((String) rows.get("event_title"))
                     .category(CategoryDto.map(rows))
                     .initiator(UserShortDto.map(rows))
-                    .location(Location.map(rows))
+                    .location(LocationDto.map(rows))
                     .build();
         }
         return null;

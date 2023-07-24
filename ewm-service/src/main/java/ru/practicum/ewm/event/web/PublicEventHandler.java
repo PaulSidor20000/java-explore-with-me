@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono;
 import ru.practicum.ewm.event.service.PublicEventService;
 import ru.practicum.ewm.exceptions.BadRequestException;
 import ru.practicum.ewm.exceptions.ErrorHandler;
-import ru.practicum.ewm.utils.EventValidator;
+import ru.practicum.ewm.utils.ParamsValidator;
 import ru.practicum.statclient.client.StatClient;
 import ru.practicum.statdto.dto.RequestDto;
 
@@ -26,7 +26,7 @@ public class PublicEventHandler {
 
     public Mono<ServerResponse> findEvents(ServerRequest request) {
         return Mono.just(request.queryParams())
-                .doOnNext(EventValidator::validateParams)
+                .doOnNext(ParamsValidator::validateParams)
                 .flatMapMany(service::findEvents)
                 .collectList()
                 .flatMap(dto ->

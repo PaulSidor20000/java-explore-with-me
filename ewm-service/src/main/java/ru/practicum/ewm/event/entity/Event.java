@@ -1,12 +1,14 @@
 package ru.practicum.ewm.event.entity;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 import ru.practicum.ewm.event.dto.EventState;
 
-@Data
+@Getter
+@Setter
 @Table(name = "events")
 public class Event {
 
@@ -19,6 +21,9 @@ public class Event {
 
     @Column(value = "category_id")
     private int categoryId;
+
+    @Column(value = "location_id")
+    private int locationId;
 
     private String annotation;
 
@@ -40,10 +45,6 @@ public class Event {
 
     @Column(value = "event_state")
     private EventState state;
-
-    private float lat;
-
-    private float lon;
 
     @Column(value = "created_on")
     private String createdOn;

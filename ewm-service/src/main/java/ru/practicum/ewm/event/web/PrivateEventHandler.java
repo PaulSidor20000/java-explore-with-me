@@ -14,6 +14,7 @@ import ru.practicum.ewm.event.dto.NewEventDto;
 import ru.practicum.ewm.event.dto.UpdateEventUserRequest;
 import ru.practicum.ewm.event.service.PrivateEventService;
 import ru.practicum.ewm.exceptions.ErrorHandler;
+import ru.practicum.ewm.locations.service.AdminLocationService;
 import ru.practicum.ewm.utils.DtoValidator;
 import ru.practicum.ewm.utils.EventValidator;
 
@@ -21,6 +22,7 @@ import ru.practicum.ewm.utils.EventValidator;
 @RequiredArgsConstructor
 public class PrivateEventHandler {
     private final PrivateEventService service;
+    private final AdminLocationService locationService;
     private final EventMapper mapper;
     private final DtoValidator validator;
     private static final String USER_ID = "userId";
@@ -44,6 +46,7 @@ public class PrivateEventHandler {
         return request.bodyToMono(NewEventDto.class)
                 .doOnNext(validator::validate)
                 .doOnNext(EventValidator::newEventValidator)
+                .flatMap(locationService::createLocationFromEvent)
                 .map(dto -> mapper.merge(userId, dto))
                 .flatMap(service::createNewEvent)
                 .flatMap(dto ->
@@ -70,6 +73,12 @@ public class PrivateEventHandler {
 
         return request.bodyToMono(UpdateEventUserRequest.class)
                 .doOnNext(validator::validate)
+                .flatMap(updateEventUserRequest -> {
+                    if (updateEventUserRequest.getLocation() != null) {
+                        return locationService.createLocationFromEvent(updateEventUserRequest);
+                    }
+                    return Mono.just(updateEventUserRequest);
+                })
                 .flatMap(dto -> service.updateUserEventById(userId, eventId, dto))
                 .flatMap(dto ->
                         ServerResponse
