@@ -15,43 +15,43 @@ import ru.practicum.ewm.utils.DtoValidator;
 @Service
 @RequiredArgsConstructor
 public class AdminCategoryHandler {
-    private final AdminCategoryService categoryService;
-    private final DtoValidator validator;
-
-    public Mono<ServerResponse> createCategory(ServerRequest request) {
-        return request.bodyToMono(NewCategoryDto.class)
-                .doOnNext(validator::validate)
-                .flatMap(categoryService::createCategory)
-                .flatMap(dto ->
-                        ServerResponse
-                                .status(HttpStatus.CREATED)
-                                .bodyValue(dto))
-                .onErrorResume(ErrorHandler::handler);
-    }
-
-    public Mono<ServerResponse> deleteCategory(ServerRequest request) {
-        int categoryId = Integer.parseInt(request.pathVariable("id"));
-
-        return categoryService.deleteCategory(categoryId)
-                .then(ServerResponse
-                        .status(HttpStatus.NO_CONTENT)
-                        .body(Mono.just("Категория удалена"), String.class))
-                .onErrorResume(ErrorHandler::handler);
-    }
-
-    public Mono<ServerResponse> updateCategory(ServerRequest request) {
-        int categoryId = Integer.parseInt(request.pathVariable("id"));
-
-        return request.bodyToMono(NewCategoryDto.class)
-                .doOnNext(validator::validate)
-                .flatMap(dto -> categoryService.updateCategory(categoryId, dto))
-                .flatMap(dto ->
-                        ServerResponse
-                                .status(HttpStatus.OK)
-                                .bodyValue(dto))
-                .switchIfEmpty(Mono.error(new CategoryNotFoundException(categoryId)))
-                .onErrorResume(ErrorHandler::handler);
-
-    }
+//    private final AdminCategoryService categoryService;
+//    private final DtoValidator validator;
+//
+//    public Mono<ServerResponse> createCategory(ServerRequest request) {
+//        return request.bodyToMono(NewCategoryDto.class)
+//                .doOnNext(validator::validate)
+//                .flatMap(categoryService::createCategory)
+//                .flatMap(dto ->
+//                        ServerResponse
+//                                .status(HttpStatus.CREATED)
+//                                .bodyValue(dto))
+//                .onErrorResume(ErrorHandler::handler);
+//    }
+//
+//    public Mono<ServerResponse> deleteCategory(ServerRequest request) {
+//        int categoryId = Integer.parseInt(request.pathVariable("id"));
+//
+//        return categoryService.deleteCategory(categoryId)
+//                .then(ServerResponse
+//                        .status(HttpStatus.NO_CONTENT)
+//                        .body(Mono.just("Категория удалена"), String.class))
+//                .onErrorResume(ErrorHandler::handler);
+//    }
+//
+//    public Mono<ServerResponse> updateCategory(ServerRequest request) {
+//        int categoryId = Integer.parseInt(request.pathVariable("id"));
+//
+//        return request.bodyToMono(NewCategoryDto.class)
+//                .doOnNext(validator::validate)
+//                .flatMap(dto -> categoryService.updateCategory(categoryId, dto))
+//                .flatMap(dto ->
+//                        ServerResponse
+//                                .status(HttpStatus.OK)
+//                                .bodyValue(dto))
+//                .switchIfEmpty(Mono.error(new CategoryNotFoundException(categoryId)))
+//                .onErrorResume(ErrorHandler::handler);
+//
+//    }
 
 }

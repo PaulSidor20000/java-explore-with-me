@@ -9,24 +9,24 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 @Configuration
 public class LocationRouter {
 
-    @Bean
-    public RouterFunction<ServerResponse> adminLocationRoutes(AdminLocationHandler handler) {
-        return RouterFunctions.route()
-                .path("/admin/locations", builder ->
-                        builder
-                                .POST(handler::createLocation)
-                                .DELETE("/{locationsId}", handler::deleteLocation))
-                .build();
-    }
-
-    @Bean
-    public RouterFunction<ServerResponse> publicLocationRoutes(PublicLocationHandler handler) {
-        return RouterFunctions.route()
-                .path("/locations", builder ->
-                        builder
-                                .GET("/{locationsId}", handler::findLocationById)
-                                .GET(handler::findLocations))
-                .build();
-    }
+//    @Bean
+//    public RouterFunction<ServerResponse> adminLocationRoutes(AdminLocationHandler handler) {
+//        return RouterFunctions.route()
+//                .path("/admin/locations", builder ->
+//                        builder
+//                                .POST(handler::createLocation)
+//                                .DELETE("/{locationsId}", handler::deleteLocation))
+//                .build();
+//    }
+//
+//    @Bean
+//    public RouterFunction<ServerResponse> publicLocationRoutes(PublicLocationHandler handler) {
+//        return RouterFunctions.route()
+//                .path("/locations", builder ->
+//                        builder
+//                                .GET("/{locationsId}", handler::findLocationById)
+//                                .GET(handler::findLocations))
+//                .build();
+//    }
 
 }

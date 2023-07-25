@@ -16,28 +16,28 @@ import ru.practicum.ewm.exceptions.ErrorHandler;
 public class PublicCategoryHandler {
     private final PublicCategoryService categoryService;
 
-    public Mono<ServerResponse> findCategories(ServerRequest request) {
-        MultiValueMap<String, String> params = request.queryParams();
+//    public Mono<ServerResponse> findCategories(ServerRequest request) {
+//        MultiValueMap<String, String> params = request.queryParams();
+//
+//        return categoryService.findCategories(params)
+//                .collectList()
+//                .flatMap(dto ->
+//                        ServerResponse
+//                                .status(HttpStatus.OK)
+//                                .bodyValue(dto))
+//                .onErrorResume(ErrorHandler::handler);
+//    }
 
-        return categoryService.findCategories(params)
-                .collectList()
-                .flatMap(dto ->
-                        ServerResponse
-                                .status(HttpStatus.OK)
-                                .bodyValue(dto))
-                .onErrorResume(ErrorHandler::handler);
-    }
-
-    public Mono<ServerResponse> findCategoryById(ServerRequest request) {
-        int categoryId = Integer.parseInt(request.pathVariables().get("id"));
-
-        return categoryService.findCategoryById(categoryId)
-                .flatMap(dto ->
-                        ServerResponse
-                                .status(HttpStatus.OK)
-                                .bodyValue(dto))
-                .switchIfEmpty(Mono.error(new CategoryNotFoundException(categoryId)))
-                .onErrorResume(ErrorHandler::handler);
-    }
+//    public Mono<ServerResponse> findCategoryById(ServerRequest request) {
+//        int categoryId = Integer.parseInt(request.pathVariables().get("id"));
+//
+//        return categoryService.findCategoryById(categoryId)
+//                .flatMap(dto ->
+//                        ServerResponse
+//                                .status(HttpStatus.OK)
+//                                .bodyValue(dto))
+//                .switchIfEmpty(Mono.error(new CategoryNotFoundException(categoryId)))
+//                .onErrorResume(ErrorHandler::handler);
+//    }
 
 }

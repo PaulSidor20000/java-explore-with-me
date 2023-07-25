@@ -15,7 +15,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Optional;
 
-@Service
 @RequiredArgsConstructor
 class StatClientImpl implements StatClient {
     private final WebClient client;

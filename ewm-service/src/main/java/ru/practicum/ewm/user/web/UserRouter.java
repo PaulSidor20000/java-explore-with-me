@@ -9,15 +9,15 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 @Configuration
 public class UserRouter {
 
-    @Bean
-    public RouterFunction<ServerResponse> adminUserRoutes(AdminUserHandler handler) {
-        return RouterFunctions.route()
-                .path("/admin/users", builder ->
-                        builder
-                                .GET(handler::findUsers)
-                                .POST(handler::createUser)
-                                .DELETE("/{id}", handler::deleteUser))
-                .build();
-    }
+//    @Bean
+//    public RouterFunction<ServerResponse> adminUserRoutes(AdminUserHandler handler) {
+//        return RouterFunctions.route()
+//                .path("/admin/users", builder ->
+//                        builder
+//                                .GET(handler::findUsers)
+//                                .POST(handler::createUser)
+//                                .DELETE("/{id}", handler::deleteUser))
+//                .build();
+//    }
 
 }
