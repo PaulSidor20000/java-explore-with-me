@@ -20,47 +20,47 @@ import java.time.format.DateTimeFormatter;
 @Component
 @RequiredArgsConstructor
 public class PublicEventHandler {
-    private final PublicEventService service;
-    private final StatClient client;
-    private static final String EVENT_ID = "eventId";
-
-    public Mono<ServerResponse> findEvents(ServerRequest request) {
-        return Mono.just(request.queryParams())
-                .doOnNext(ParamsValidator::validateParams)
-                .flatMapMany(service::findEvents)
-                .collectList()
-                .flatMap(dto ->
-                        ServerResponse
-                                .status(HttpStatus.OK)
-                                .bodyValue(dto))
-                .onErrorResume(ErrorHandler::handler)
-                .doOnSuccess(response -> hitStat(request, "/events"));
-    }
-
-    public Mono<ServerResponse> findEventById(ServerRequest request) {
-        int eventId = Integer.parseInt(request.pathVariable(EVENT_ID));
-
-        return service.findEventById(eventId)
-                .flatMap(dto ->
-                        ServerResponse
-                                .status(HttpStatus.OK)
-                                .bodyValue(dto))
-                .onErrorResume(ErrorHandler::handler)
-                .doOnSuccess(response -> hitStat(request, "/events/" + eventId));
-    }
-
-    private void hitStat(ServerRequest request, String uri) {
-        try {
-            client.post(RequestDto.builder()
-                            .app("ewm-main-service")
-                            .ip(request.remoteAddress().orElseThrow().getHostName())
-                            .uri(uri)
-                            .timestamp(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
-                            .build(), "/hit")
-                    .subscribe();
-        } catch (JsonProcessingException e) {
-            throw new BadRequestException(e.getMessage());
-        }
-    }
+//    private final PublicEventService service;
+//    private final StatClient client;
+//    private static final String EVENT_ID = "eventId";
+//
+//    public Mono<ServerResponse> findEvents(ServerRequest request) {
+//        return Mono.just(request.queryParams())
+//                .doOnNext(ParamsValidator::validateParams)
+//                .flatMapMany(service::findEvents)
+//                .collectList()
+//                .flatMap(dto ->
+//                        ServerResponse
+//                                .status(HttpStatus.OK)
+//                                .bodyValue(dto))
+//                .onErrorResume(ErrorHandler::handler)
+//                .doOnSuccess(response -> hitStat(request, "/events"));
+//    }
+//
+//    public Mono<ServerResponse> findEventById(ServerRequest request) {
+//        int eventId = Integer.parseInt(request.pathVariable(EVENT_ID));
+//
+//        return service.findEventById(eventId)
+//                .flatMap(dto ->
+//                        ServerResponse
+//                                .status(HttpStatus.OK)
+//                                .bodyValue(dto))
+//                .onErrorResume(ErrorHandler::handler)
+//                .doOnSuccess(response -> hitStat(request, "/events/" + eventId));
+//    }
+//
+//    private void hitStat(ServerRequest request, String uri) {
+//        try {
+//            client.post(RequestDto.builder()
+//                            .app("ewm-main-service")
+//                            .ip(request.remoteAddress().orElseThrow().getHostName())
+//                            .uri(uri)
+//                            .timestamp(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+//                            .build(), "/hit")
+//                    .subscribe();
+//        } catch (JsonProcessingException e) {
+//            throw new BadRequestException(e.getMessage());
+//        }
+//    }
 
 }

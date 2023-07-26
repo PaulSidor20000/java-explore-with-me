@@ -5,6 +5,7 @@ import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.practicum.ewm.event.dto.EventFullDto;
+import ru.practicum.ewm.event.dto.EventParams;
 import ru.practicum.ewm.event.dto.EventShortDto;
 
 public interface CustomEventRepository {
@@ -13,9 +14,9 @@ public interface CustomEventRepository {
 
     Mono<EventFullDto> getPublicEventFullDto(int eventId);
 
-    Flux<EventFullDto> getAdminEventFullDtos(MultiValueMap<String, String> params);
+    Flux<EventFullDto> getAdminEventFullDtos(EventParams params);
 
-    Flux<EventShortDto> getPrivateEventShortDtos(int userId, Pageable page);
+    Flux<EventShortDto> getPrivateEventShortDtos(int userId, Integer from, Integer size);
 
-    Flux<EventShortDto> getPublicEventShortDtos(MultiValueMap<String, String> params);
+    Flux<EventShortDto> getPublicEventShortDtos(EventParams params);
 }

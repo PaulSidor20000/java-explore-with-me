@@ -14,7 +14,7 @@ import ru.practicum.ewm.exceptions.ErrorHandler;
 @Component
 @RequiredArgsConstructor
 public class PublicCategoryHandler {
-    private final PublicCategoryService categoryService;
+//    private final PublicCategoryService categoryService;
 
 //    public Mono<ServerResponse> findCategories(ServerRequest request) {
 //        MultiValueMap<String, String> params = request.queryParams();

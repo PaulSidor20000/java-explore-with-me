@@ -17,7 +17,7 @@ import java.time.format.DateTimeFormatter;
 public class EventValidator {
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    public static void newEventValidator(NewEventDto dto) {
+    public void newEventValidator(NewEventDto dto) {
         if (dto.getEventDate() != null) {
             checkEventDate(LocalDateTime.parse(dto.getEventDate(), formatter));
         }

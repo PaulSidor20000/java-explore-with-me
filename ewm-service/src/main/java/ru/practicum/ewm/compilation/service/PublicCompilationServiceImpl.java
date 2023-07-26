@@ -19,8 +19,8 @@ public class PublicCompilationServiceImpl implements PublicCompilationService {
     }
 
     @Override
-    public Flux<CompilationDto> findCompilations(MultiValueMap<String, String> params) {
-        return compilationRepository.findCompilationsByParams(params);
+    public Flux<CompilationDto> findCompilations(Boolean pinned, Integer from, Integer size) {
+        return compilationRepository.findCompilationsByParams(pinned, from, size);
     }
 
 }

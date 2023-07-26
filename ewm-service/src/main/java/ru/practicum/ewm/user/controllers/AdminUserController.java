@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -22,6 +23,7 @@ public class AdminUserController {
     private final AdminUserService adminUserService;
 
     @GetMapping
+    @ResponseStatus(HttpStatus.OK)
     public Flux<UserDto> findUsers(@RequestParam List<Integer> ids,
                                    @RequestParam(defaultValue = "0") Integer from,
                                    @RequestParam(defaultValue = "10") Integer size
@@ -32,12 +34,14 @@ public class AdminUserController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public Mono<UserDto> createUser(@Valid @RequestBody NewUserRequest dto) {
         log.info("POST new user={}", dto);
         return adminUserService.createUser(dto);
     }
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public Mono<Void> deleteUser(@PathVariable Integer id) {
         log.info("DELETE user id={}", id);
         return adminUserService.deleteUser(id);

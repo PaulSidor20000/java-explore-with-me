@@ -12,29 +12,29 @@ import ru.practicum.ewm.exceptions.ErrorHandler;
 @Component
 @RequiredArgsConstructor
 public class PublicCompilationHandler {
-    private final PublicCompilationService publicCompilationService;
-    private static final String COMPILATION_ID = "compId";
-
-    public Mono<ServerResponse> findCompilationById(ServerRequest request) {
-        int compilationId = Integer.parseInt(request.pathVariable(COMPILATION_ID));
-
-        return publicCompilationService.findCompilationById(compilationId)
-                .flatMap(dto ->
-                        ServerResponse
-                                .status(HttpStatus.OK)
-                                .bodyValue(dto))
-                .onErrorResume(ErrorHandler::handler);
-    }
-
-    public Mono<ServerResponse> findCompilations(ServerRequest request) {
-        return Mono.just(request.queryParams())
-                .flatMapMany(publicCompilationService::findCompilations)
-                .collectList()
-                .flatMap(dto ->
-                        ServerResponse
-                                .status(HttpStatus.OK)
-                                .bodyValue(dto))
-                .onErrorResume(ErrorHandler::handler);
-    }
+//    private final PublicCompilationService publicCompilationService;
+//    private static final String COMPILATION_ID = "compId";
+//
+//    public Mono<ServerResponse> findCompilationById(ServerRequest request) {
+//        int compilationId = Integer.parseInt(request.pathVariable(COMPILATION_ID));
+//
+//        return publicCompilationService.findCompilationById(compilationId)
+//                .flatMap(dto ->
+//                        ServerResponse
+//                                .status(HttpStatus.OK)
+//                                .bodyValue(dto))
+//                .onErrorResume(ErrorHandler::handler);
+//    }
+//
+//    public Mono<ServerResponse> findCompilations(ServerRequest request) {
+//        return Mono.just(request.queryParams())
+//                .flatMapMany(publicCompilationService::findCompilations)
+//                .collectList()
+//                .flatMap(dto ->
+//                        ServerResponse
+//                                .status(HttpStatus.OK)
+//                                .bodyValue(dto))
+//                .onErrorResume(ErrorHandler::handler);
+//    }
 
 }

@@ -9,25 +9,25 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 @Configuration
 public class CompilationRouter {
 
-    @Bean
-    public RouterFunction<ServerResponse> adminCompilationRoutes(AdminCompilationHandler handler) {
-        return RouterFunctions.route()
-                .path("/admin/compilations", builder ->
-                        builder
-                                .DELETE("/{compId}", handler::deleteCompilation)
-                                .PATCH("/{compId}", handler::updateCompilation)
-                                .POST(handler::createNewCompilation))
-                .build();
+//    @Bean
+//    public RouterFunction<ServerResponse> adminCompilationRoutes(AdminCompilationHandler handler) {
+//        return RouterFunctions.route()
+//                .path("/admin/compilations", builder ->
+//                        builder
+////                                .DELETE("/{compId}", handler::deleteCompilation))
+////                                .PATCH("/{compId}", handler::updateCompilation)
+////                                .POST(handler::createNewCompilation))
+//                .build();
     }
 
-    @Bean
-    public RouterFunction<ServerResponse> publicCompilationRoutes(PublicCompilationHandler handler) {
-        return RouterFunctions.route()
-                .path("/compilations", builder ->
-                        builder
-                                .GET("/{compId}", handler::findCompilationById)
-                                .GET(handler::findCompilations))
-                .build();
-    }
+//    @Bean
+//    public RouterFunction<ServerResponse> publicCompilationRoutes(PublicCompilationHandler handler) {
+//        return RouterFunctions.route()
+//                .path("/compilations", builder ->
+//                        builder
+//                                .GET("/{compId}", handler::findCompilationById)
+//                                .GET(handler::findCompilations))
+//                .build();
+//    }
 
-}
+//}

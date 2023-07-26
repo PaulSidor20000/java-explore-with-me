@@ -7,7 +7,7 @@ import ru.practicum.ewm.compilation.dto.CompilationDto;
 
 public interface CustomCompilationRepository {
 
-    Flux<CompilationDto> findCompilationsByParams(MultiValueMap<String, String> params);
+    Flux<CompilationDto> findCompilationsByParams(Boolean pinned, Integer from, Integer size);
 
     Mono<CompilationDto> findCompilationDtoById(int compilationId);
 

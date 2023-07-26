@@ -2,16 +2,13 @@ package ru.practicum.ewm.event.repository;
 
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
 import org.springframework.r2dbc.core.DatabaseClient;
 import org.springframework.r2dbc.core.Parameter;
-import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.practicum.ewm.event.dto.EventFullDto;
+import ru.practicum.ewm.event.dto.EventParams;
 import ru.practicum.ewm.event.dto.EventShortDto;
-
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 public class CustomEventRepositoryImpl implements CustomEventRepository {
@@ -33,15 +30,15 @@ public class CustomEventRepositoryImpl implements CustomEventRepository {
                     " LEFT JOIN requests r ON r.event_id = e.event_id";
 
     @Override
-    public Flux<EventFullDto> getAdminEventFullDtos(MultiValueMap<String, String> params) {
+    public Flux<EventFullDto> getAdminEventFullDtos(EventParams params) {
         String query = String.format("%s%s%s%s%s%s%s", EVENT_FULL_JOIN,
-                params.get("users") != null ? " WHERE e.user_id IN (:users)" : " WHERE e.user_id IS NOT NULL",
-                params.get("categories") != null ? " AND e.category_id IN (:cat)" : " AND e.category_id IS NOT NULL",
-                params.get("states") != null ? " AND e.event_state IN (:states)" : " AND e.event_state IS NOT NULL",
-                params.get("rangeStart") != null && params.get("rangeEnd") != null
+                params.getUsers() != null ? " WHERE e.user_id IN (:users)" : " WHERE e.user_id IS NOT NULL",
+                params.getCategories() != null ? " AND e.category_id IN (:cat)" : " AND e.category_id IS NOT NULL",
+                params.getStates() != null ? " AND e.event_state IN (:states)" : " AND e.event_state IS NOT NULL",
+                params.getRangeStart() != null && params.getRangeEnd() != null
                         ? " AND e.event_date between (:start) AND (:end)"
                         : " AND e.event_date::timestamp > current_timestamp",
-                params.get("lon") != null && params.get("lat") != null && params.get("radius") != null
+                params.getLon() != null && params.getLat() != null && params.getRadius() != null
                         ? " AND distance(l.lat, l.lon, :lat2::real, :lon2::real) < :radius::real"
                         : "",
                 " GROUP BY e.event_id, l.location_id, category_name, user_name" +
@@ -50,43 +47,41 @@ public class CustomEventRepositoryImpl implements CustomEventRepository {
                         " OFFSET (:from)::bigint");
         DatabaseClient.GenericExecuteSpec bindings = client.sql(query);
 
-        if (params.get("lon") != null && params.get("lat") != null && params.get("radius") != null) {
-            bindings = bindings.bind("radius", params.get("radius"))
-                    .bind("lon2", params.get("lon"))
-                    .bind("lat2", params.get("lat"));
+        if (params.getLon() != null && params.getLat() != null && params.getRadius() != null) {
+            bindings = bindings.bind("radius", params.getRadius())
+                    .bind("lon2", params.getLon())
+                    .bind("lat2", params.getLat());
         }
-        if (params.get("users") != null) {
-            bindings = bindings.bind("users", params.get("users").stream()
-                    .map(Integer::parseInt).collect(Collectors.toList()));
+        if (params.getUsers() != null) {
+            bindings = bindings.bind("users", params.getUsers());
         }
-        if (params.get("categories") != null) {
-            bindings = bindings.bind("cat", params.get("categories").stream()
-                    .map(Integer::parseInt).collect(Collectors.toList()));
+        if (params.getCategories() != null) {
+            bindings = bindings.bind("cat", params.getCategories());
         }
-        if (params.get("states") != null) {
-            bindings = bindings.bind("states", params.get("states"));
+        if (params.getStates() != null) {
+            bindings = bindings.bind("states", params.getStates());
         }
-        if (params.get("rangeStart") != null) {
-            bindings = bindings.bind("start", params.get("rangeStart"));
+        if (params.getRangeStart() != null) {
+            bindings = bindings.bind("start", params.getRangeStart());
         }
-        if (params.get("rangeEnd") != null) {
-            bindings = bindings.bind("end", params.get("rangeEnd"));
+        if (params.getRangeEnd() != null) {
+            bindings = bindings.bind("end", params.getRangeEnd());
         }
         return bindings
-                .bind("from", params.get("from") != null ? params.get("from") : 0)
-                .bind("size", params.get("size") != null ? params.get("size") : 10)
+                .bind("from", params.getFrom() != null ? params.getFrom() : 0)
+                .bind("size", params.getSize() != null ? params.getSize() : 10)
                 .fetch().all()
                 .mapNotNull(EventFullDto::map);
     }
 
     @Override
-    public Flux<EventShortDto> getPublicEventShortDtos(MultiValueMap<String, String> params) {
+    public Flux<EventShortDto> getPublicEventShortDtos(EventParams params) {
         String query = String.format("%s%s%s%s%s%s", EVENT_SHORT_JOIN,
                 " WHERE e.event_state = 'PUBLISHED'" +
                         " AND e.annotation LIKE concat('%',:text,'%')",
-                params.get("categories") != null ? " AND e.category_id IN (:cat)" : " AND e.category_id IS NOT NULL",
-                params.get("paid") != null ? " AND e.paid = (:paid)::boolean" : " AND e.paid IS NOT NULL",
-                params.get("rangeStart") != null && params.get("rangeEnd") != null
+                params.getCategories() != null ? " AND e.category_id IN (:cat)" : " AND e.category_id IS NOT NULL",
+                params.getPaid() != null ? " AND e.paid = (:paid)::boolean" : " AND e.paid IS NOT NULL",
+                params.getRangeStart() != null && params.getRangeEnd() != null
                         ? " AND e.event_date between (:start) AND (:end)"
                         : " AND e.event_date::timestamp > current_timestamp",
                 " GROUP BY e.event_id, e.event_date, e.participant_limit, category_name, user_name" +
@@ -96,25 +91,24 @@ public class CustomEventRepositoryImpl implements CustomEventRepository {
                         " OFFSET (:from)::bigint");
         DatabaseClient.GenericExecuteSpec bindings = client.sql(query);
 
-        if (params.get("categories") != null) {
-            bindings = bindings.bind("cat", params.get("categories").stream()
-                    .map(Integer::parseInt).collect(Collectors.toList()));
+        if (params.getCategories() != null) {
+            bindings = bindings.bind("cat", params.getCategories());
         }
-        if (params.get("paid") != null) {
-            bindings = bindings.bind("paid", params.get("paid"));
+        if (params.getPaid() != null) {
+            bindings = bindings.bind("paid", params.getPaid());
         }
-        if (params.get("rangeStart") != null) {
-            bindings = bindings.bind("start", params.get("rangeStart"));
+        if (params.getRangeStart() != null) {
+            bindings = bindings.bind("start", params.getRangeStart());
         }
-        if (params.get("rangeEnd") != null) {
-            bindings = bindings.bind("end", params.get("rangeEnd"));
+        if (params.getRangeEnd() != null) {
+            bindings = bindings.bind("end", params.getRangeEnd());
         }
         return bindings
-                .bind("available", params.get("onlyAvailable") != null ? params.get("onlyAvailable") : "false")
-                .bind("text", Parameter.fromOrEmpty(params.get("text"), String.class))
-                .bind("sort", params.get("sort") != null ? params.get("sort") : "EVENT_DATE")
-                .bind("from", params.get("from") != null ? params.get("from") : 0)
-                .bind("size", params.get("size") != null ? params.get("size") : 10)
+                .bind("available", params.getOnlyAvailable() != null ? params.getOnlyAvailable() : "false")
+                .bind("text", Parameter.fromOrEmpty(params.getText(), String.class))
+                .bind("sort", params.getSort() != null ? params.getSort() : "EVENT_DATE")
+                .bind("from", params.getFrom() != null ? params.getFrom() : 0)
+                .bind("size", params.getSize() != null ? params.getSize() : 10)
                 .fetch().all()
                 .mapNotNull(EventShortDto::map);
     }
@@ -145,7 +139,7 @@ public class CustomEventRepositoryImpl implements CustomEventRepository {
     }
 
     @Override
-    public Flux<EventShortDto> getPrivateEventShortDtos(int userId, Pageable page) {
+    public Flux<EventShortDto> getPrivateEventShortDtos(int userId, Integer from, Integer size) {
         String query = EVENT_SHORT_JOIN +
                 " WHERE u.user_id = (:userId)" +
                 " GROUP BY e.event_id, category_name, user_name" +
@@ -153,8 +147,8 @@ public class CustomEventRepositoryImpl implements CustomEventRepository {
 
         return client.sql(query)
                 .bind("userId", userId)
-                .bind("from", page.getPageNumber())
-                .bind("size", page.getPageSize())
+                .bind("from", from)
+                .bind("size", size)
                 .fetch().all()
                 .mapNotNull(EventShortDto::map);
     }

@@ -21,102 +21,102 @@ import ru.practicum.ewm.utils.EventValidator;
 @Service
 @RequiredArgsConstructor
 public class PrivateEventHandler {
-    private final PrivateEventService service;
-    private final AdminLocationService locationService;
-    private final EventMapper mapper;
-    private final DtoValidator validator;
-    private static final String USER_ID = "userId";
-    private static final String EVENT_ID = "eventId";
+//    private final PrivateEventService service;
+//    private final AdminLocationService locationService;
+//    private final EventMapper mapper;
+//    private final DtoValidator validator;
+//    private static final String USER_ID = "userId";
+//    private static final String EVENT_ID = "eventId";
 
-    public Mono<ServerResponse> findUserEvents(ServerRequest request) {
-        int userId = Integer.parseInt(request.pathVariable(USER_ID));
+//    public Mono<ServerResponse> findUserEvents(ServerRequest request) {
+//        int userId = Integer.parseInt(request.pathVariable(USER_ID));
+//
+//        return service.findUserEvents(userId, getRequestPages(request))
+//                .collectList()
+//                .flatMap(dto ->
+//                        ServerResponse
+//                                .status(HttpStatus.OK)
+//                                .bodyValue(dto))
+//                .onErrorResume(ErrorHandler::handler);
+//    }
 
-        return service.findUserEvents(userId, getRequestPages(request))
-                .collectList()
-                .flatMap(dto ->
-                        ServerResponse
-                                .status(HttpStatus.OK)
-                                .bodyValue(dto))
-                .onErrorResume(ErrorHandler::handler);
-    }
+//    public Mono<ServerResponse> createNewEvent(ServerRequest request) {
+//        int userId = Integer.parseInt(request.pathVariable(USER_ID));
+//
+//        return request.bodyToMono(NewEventDto.class)
+//                .doOnNext(validator::validate)
+//                .doOnNext(EventValidator::newEventValidator)
+//                .flatMap(locationService::createLocationFromEvent)
+//                .map(dto -> mapper.merge(userId, dto))
+//                .flatMap(service::createNewEvent)
+//                .flatMap(dto ->
+//                        ServerResponse
+//                                .status(HttpStatus.CREATED)
+//                                .bodyValue(dto))
+//                .onErrorResume(ErrorHandler::handler);
+//    }
 
-    public Mono<ServerResponse> createNewEvent(ServerRequest request) {
-        int userId = Integer.parseInt(request.pathVariable(USER_ID));
+//    public Mono<ServerResponse> findUserEventById(ServerRequest request) {
+//        int eventId = Integer.parseInt(request.pathVariable(EVENT_ID));
+//
+//        return service.findUserEventById(eventId)
+//                .flatMap(dto ->
+//                        ServerResponse
+//                                .status(HttpStatus.OK)
+//                                .bodyValue(dto))
+//                .onErrorResume(ErrorHandler::handler);
+//    }
 
-        return request.bodyToMono(NewEventDto.class)
-                .doOnNext(validator::validate)
-                .doOnNext(EventValidator::newEventValidator)
-                .flatMap(locationService::createLocationFromEvent)
-                .map(dto -> mapper.merge(userId, dto))
-                .flatMap(service::createNewEvent)
-                .flatMap(dto ->
-                        ServerResponse
-                                .status(HttpStatus.CREATED)
-                                .bodyValue(dto))
-                .onErrorResume(ErrorHandler::handler);
-    }
+//    public Mono<ServerResponse> updateUserEventById(ServerRequest request) {
+//        int userId = Integer.parseInt(request.pathVariable(USER_ID));
+//        int eventId = Integer.parseInt(request.pathVariable(EVENT_ID));
+//
+//        return request.bodyToMono(UpdateEventUserRequest.class)
+//                .doOnNext(validator::validate)
+//                .flatMap(updateEventUserRequest -> {
+//                    if (updateEventUserRequest.getLocation() != null) {
+//                        return locationService.createLocationFromEvent(updateEventUserRequest);
+//                    }
+//                    return Mono.just(updateEventUserRequest);
+//                })
+//                .flatMap(dto -> service.updateUserEventById(userId, eventId, dto))
+//                .flatMap(dto ->
+//                        ServerResponse
+//                                .status(HttpStatus.OK)
+//                                .bodyValue(dto))
+//                .onErrorResume(ErrorHandler::handler);
+//    }
 
-    public Mono<ServerResponse> findUserEventById(ServerRequest request) {
-        int eventId = Integer.parseInt(request.pathVariable(EVENT_ID));
+//    public Mono<ServerResponse> findRequestsOfUserEvent(ServerRequest request) {
+//        int eventId = Integer.parseInt(request.pathVariable(EVENT_ID));
+//
+//        return service.findRequestsOfUserEvent(eventId)
+//                .collectList()
+//                .flatMap(dto ->
+//                        ServerResponse
+//                                .status(HttpStatus.OK)
+//                                .bodyValue(dto))
+//                .onErrorResume(ErrorHandler::handler);
+//    }
 
-        return service.findUserEventById(eventId)
-                .flatMap(dto ->
-                        ServerResponse
-                                .status(HttpStatus.OK)
-                                .bodyValue(dto))
-                .onErrorResume(ErrorHandler::handler);
-    }
+//    public Mono<ServerResponse> updateRequestsOfUserEvent(ServerRequest request) {
+//        int userId = Integer.parseInt(request.pathVariable(USER_ID));
+//        int eventId = Integer.parseInt(request.pathVariable(EVENT_ID));
+//
+//        return request.bodyToMono(EventRequestStatusUpdateRequest.class)
+//                .flatMap(dto -> service.updateRequestsOfUserEvent(userId, eventId, dto))
+//                .flatMap(dto ->
+//                        ServerResponse
+//                                .status(HttpStatus.OK)
+//                                .bodyValue(dto))
+//                .onErrorResume(ErrorHandler::handler);
+//    }
 
-    public Mono<ServerResponse> updateUserEventById(ServerRequest request) {
-        int userId = Integer.parseInt(request.pathVariable(USER_ID));
-        int eventId = Integer.parseInt(request.pathVariable(EVENT_ID));
-
-        return request.bodyToMono(UpdateEventUserRequest.class)
-                .doOnNext(validator::validate)
-                .flatMap(updateEventUserRequest -> {
-                    if (updateEventUserRequest.getLocation() != null) {
-                        return locationService.createLocationFromEvent(updateEventUserRequest);
-                    }
-                    return Mono.just(updateEventUserRequest);
-                })
-                .flatMap(dto -> service.updateUserEventById(userId, eventId, dto))
-                .flatMap(dto ->
-                        ServerResponse
-                                .status(HttpStatus.OK)
-                                .bodyValue(dto))
-                .onErrorResume(ErrorHandler::handler);
-    }
-
-    public Mono<ServerResponse> findRequestsOfUserEvent(ServerRequest request) {
-        int eventId = Integer.parseInt(request.pathVariable(EVENT_ID));
-
-        return service.findRequestsOfUserEvent(eventId)
-                .collectList()
-                .flatMap(dto ->
-                        ServerResponse
-                                .status(HttpStatus.OK)
-                                .bodyValue(dto))
-                .onErrorResume(ErrorHandler::handler);
-    }
-
-    public Mono<ServerResponse> updateRequestsOfUserEvent(ServerRequest request) {
-        int userId = Integer.parseInt(request.pathVariable(USER_ID));
-        int eventId = Integer.parseInt(request.pathVariable(EVENT_ID));
-
-        return request.bodyToMono(EventRequestStatusUpdateRequest.class)
-                .flatMap(dto -> service.updateRequestsOfUserEvent(userId, eventId, dto))
-                .flatMap(dto ->
-                        ServerResponse
-                                .status(HttpStatus.OK)
-                                .bodyValue(dto))
-                .onErrorResume(ErrorHandler::handler);
-    }
-
-    private Pageable getRequestPages(ServerRequest request) {
-        int from = request.queryParam("from").map(Integer::parseInt).orElse(0);
-        int size = request.queryParam("size").map(Integer::parseInt).orElse(10);
-
-        return PageRequest.of(from, size);
-    }
+//    private Pageable getRequestPages(ServerRequest request) {
+//        int from = request.queryParam("from").map(Integer::parseInt).orElse(0);
+//        int size = request.queryParam("size").map(Integer::parseInt).orElse(10);
+//
+//        return PageRequest.of(from, size);
+//    }
 
 }

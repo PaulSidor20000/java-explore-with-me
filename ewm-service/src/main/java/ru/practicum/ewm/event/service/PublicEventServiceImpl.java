@@ -10,6 +10,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.practicum.ewm.event.dto.EventFullDto;
 import ru.practicum.ewm.event.dto.EventMapper;
+import ru.practicum.ewm.event.dto.EventParams;
 import ru.practicum.ewm.event.dto.EventShortDto;
 import ru.practicum.ewm.event.repository.EventRepository;
 import ru.practicum.ewm.exceptions.BadRequestException;
@@ -29,7 +30,7 @@ public class PublicEventServiceImpl implements PublicEventService {
     private final StatClient client;
 
     @Override
-    public Flux<EventShortDto> findEvents(MultiValueMap<String, String> params) {
+    public Flux<EventShortDto> findEvents(EventParams params) {
         return eventRepository.getPublicEventShortDtos(params)
                 .flatMap(dto ->
                         getHits(List.of("/events/" + dto.getId())).singleOrEmpty()

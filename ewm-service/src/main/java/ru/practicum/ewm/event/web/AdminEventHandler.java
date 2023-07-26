@@ -16,44 +16,44 @@ import ru.practicum.ewm.utils.ParamsValidator;
 @Component
 @RequiredArgsConstructor
 public class AdminEventHandler {
-    private final DtoValidator validator;
-    private final AdminEventService service;
-    private final AdminLocationService locationService;
-    private static final String EVENT_ID = "eventId";
+//    private final DtoValidator validator;
+//    private final AdminEventService service;
+//    private final AdminLocationService locationService;
+//    private static final String EVENT_ID = "eventId";
 
-    public Mono<ServerResponse> findEvents(ServerRequest request) {
-        return Mono.just(request.queryParams())
-                .doOnNext(ParamsValidator::validateParams)
-                .flatMapMany(service::findEvents)
-                .collectList()
-                .flatMap(dto ->
-                        ServerResponse
-                                .status(HttpStatus.OK)
-                                .bodyValue(dto))
-                .onErrorResume(ErrorHandler::handler);
-    }
-
-    public Mono<ServerResponse> updateEvent(ServerRequest request) {
-        int eventId = Integer.parseInt(request.pathVariable(EVENT_ID));
-
-        return request.bodyToMono(UpdateEventAdminRequest.class)
-                .doOnNext(dto -> {
-                    if (dto.getAnnotation() != null && dto.getDescription() != null && dto.getTitle() != null) {
-                        validator.validate(dto);
-                    }
-                })
-                .flatMap(updateEventAdminRequest -> {
-                    if (updateEventAdminRequest.getLocation() != null) {
-                        return locationService.createLocationFromEvent(updateEventAdminRequest);
-                    }
-                    return Mono.just(updateEventAdminRequest);
-                })
-                .flatMap(dto -> service.updateEvent(eventId, dto))
-                .flatMap(dto ->
-                        ServerResponse
-                                .status(HttpStatus.OK)
-                                .bodyValue(dto))
-                .onErrorResume(ErrorHandler::handler);
-    }
+//    public Mono<ServerResponse> findEvents(ServerRequest request) {
+//        return Mono.just(request.queryParams())
+//                .doOnNext(ParamsValidator::validateParams)
+//                .flatMapMany(service::findEvents)
+//                .collectList()
+//                .flatMap(dto ->
+//                        ServerResponse
+//                                .status(HttpStatus.OK)
+//                                .bodyValue(dto))
+//                .onErrorResume(ErrorHandler::handler);
+//    }
+//
+//    public Mono<ServerResponse> updateEvent(ServerRequest request) {
+//        int eventId = Integer.parseInt(request.pathVariable(EVENT_ID));
+//
+//        return request.bodyToMono(UpdateEventAdminRequest.class)
+//                .doOnNext(dto -> {
+//                    if (dto.getAnnotation() != null && dto.getDescription() != null && dto.getTitle() != null) {
+//                        validator.validate(dto);
+//                    }
+//                })
+//                .flatMap(updateEventAdminRequest -> {
+//                    if (updateEventAdminRequest.getLocation() != null) {
+//                        return locationService.createLocationFromEvent(updateEventAdminRequest);
+//                    }
+//                    return Mono.just(updateEventAdminRequest);
+//                })
+//                .flatMap(dto -> service.updateEvent(eventId, dto))
+//                .flatMap(dto ->
+//                        ServerResponse
+//                                .status(HttpStatus.OK)
+//                                .bodyValue(dto))
+//                .onErrorResume(ErrorHandler::handler);
+//    }
 
 }

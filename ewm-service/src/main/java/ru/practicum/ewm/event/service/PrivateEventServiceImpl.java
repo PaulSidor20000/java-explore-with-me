@@ -27,8 +27,8 @@ public class PrivateEventServiceImpl implements PrivateEventService {
     private final EventRepository eventRepository;
 
     @Override
-    public Flux<EventShortDto> findUserEvents(int userId, Pageable page) {
-        return eventRepository.getPrivateEventShortDtos(userId, page);
+    public Flux<EventShortDto> findUserEvents(int userId, Integer from, Integer size) {
+        return eventRepository.getPrivateEventShortDtos(userId, from, size);
     }
 
     @Override

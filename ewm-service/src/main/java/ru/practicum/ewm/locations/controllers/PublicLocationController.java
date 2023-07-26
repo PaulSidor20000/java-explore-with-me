@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
@@ -17,11 +18,12 @@ import javax.validation.constraints.NotNull;
 @Validated
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/admin/locations")
+@RequestMapping("/locations")
 public class PublicLocationController {
     private final PublicLocationService publicLocationService;
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public Flux<LocationDto> findLocations(@NotNull @RequestParam Integer radius,
                                            @NotNull @RequestParam Float lon,
                                            @NotNull @RequestParam Float lat,
@@ -33,6 +35,7 @@ public class PublicLocationController {
     }
 
     @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public Mono<LocationDto> findLocationById(@PathVariable Integer id) {
         log.info("GET location by id={}", id);
         return publicLocationService.findLocationById(id);

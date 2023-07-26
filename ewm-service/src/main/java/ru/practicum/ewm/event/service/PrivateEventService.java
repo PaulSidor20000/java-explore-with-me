@@ -8,7 +8,7 @@ import ru.practicum.ewm.event.entity.Event;
 import ru.practicum.ewm.request.dto.ParticipationRequestDto;
 
 public interface PrivateEventService {
-    Flux<EventShortDto> findUserEvents(int userId, Pageable page);
+    Flux<EventShortDto> findUserEvents(int userId, Integer from, Integer size);
 
     Mono<EventFullDto> createNewEvent(Event event);
 
