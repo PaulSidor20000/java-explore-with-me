@@ -22,6 +22,7 @@ public class AdminLocationController {
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<LocationDto> createLocation(@Valid @RequestBody NewLocationDto dto) {
         log.info("POST create location={}", dto);
+
         return adminLocationService.createLocation(dto);
     }
 
@@ -29,6 +30,7 @@ public class AdminLocationController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public Mono<Void> deleteLocation(@PathVariable Integer id) {
         log.info("DELETE location id={}", id);
+
         return adminLocationService.deleteLocation(id);
     }
 

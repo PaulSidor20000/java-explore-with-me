@@ -1,4 +1,4 @@
-package ru.practicum.ewm.locations.web;
+package ru.practicum.ewm.locations.controllers;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.DisplayName;
@@ -9,7 +9,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import ru.practicum.ewm.locations.controllers.PublicLocationController;
 import ru.practicum.ewm.locations.dto.LocationDto;
 import ru.practicum.ewm.locations.service.PublicLocationService;
 
@@ -32,7 +31,13 @@ class PublicLocationControllerTest {
                 .thenReturn(Flux.just(locationDto));
 
         client.get()
-                .uri("/locations")
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path("/locations")
+                                .queryParam("radius", 0)
+                                .queryParam("lon", 0)
+                                .queryParam("lat", 0)
+                                .build())
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
@@ -40,6 +45,33 @@ class PublicLocationControllerTest {
                 .jsonPath("$[0].name").isEqualTo(locationDto.getName())
                 .jsonPath("$[0].lon").isEqualTo(locationDto.getLon())
                 .jsonPath("$[0].lat").isEqualTo(locationDto.getLat());
+    }
+
+    @Test
+    @DisplayName("GET /locations should return 400 bad request")
+    void findLocationsBadRequestNegativeRadius() {
+        client.get()
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path("/locations")
+                                .queryParam("radius", -1)
+                                .queryParam("lon", 0)
+                                .queryParam("lat", 0)
+                                .build())
+                .exchange()
+                .expectStatus().isBadRequest();
+    }
+
+    @Test
+    @DisplayName("GET /locations should return 400 bad request")
+    void findLocationsBadRequestNoParams() {
+        client.get()
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path("/locations")
+                                .build())
+                .exchange()
+                .expectStatus().isBadRequest();
     }
 
     @Test

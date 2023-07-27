@@ -1,10 +1,8 @@
 package ru.practicum.ewm.event.dto;
 
 import lombok.Data;
-import ru.practicum.ewm.exceptions.BadRequestException;
 
 import javax.validation.constraints.PositiveOrZero;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 

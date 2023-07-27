@@ -5,7 +5,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.practicum.ewm.event.dto.EventFullDto;
@@ -14,7 +13,7 @@ import ru.practicum.ewm.event.dto.EventParams;
 import ru.practicum.ewm.event.dto.EventShortDto;
 import ru.practicum.ewm.event.repository.EventRepository;
 import ru.practicum.ewm.exceptions.BadRequestException;
-import ru.practicum.ewm.exceptions.EventNotFoundException;
+import ru.practicum.ewm.exceptions.NotFoundException;
 import ru.practicum.ewm.utils.EventValidator;
 import ru.practicum.statclient.client.StatClient;
 import ru.practicum.statdto.dto.ViewStats;
@@ -49,7 +48,7 @@ public class PublicEventServiceImpl implements PublicEventService {
                         getHits(List.of("/events/" + eventId)).singleOrEmpty(),
                         eventMapper::enrich
                 )
-                .switchIfEmpty(Mono.error(new EventNotFoundException(eventId)));
+                .switchIfEmpty(Mono.error(new NotFoundException(String.format("Event with id=%d was not found", eventId))));
     }
 
     private Flux<ViewStats> getHits(Collection<String> uris) {

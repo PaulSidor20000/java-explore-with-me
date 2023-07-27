@@ -30,6 +30,7 @@ public class AdminUserController {
     ) {
         Pageable page = PageRequest.of(from, size);
         log.info("GET users by ids={}, params={}", ids, page);
+
         return adminUserService.findUsers(ids, page);
     }
 
@@ -37,6 +38,7 @@ public class AdminUserController {
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<UserDto> createUser(@Valid @RequestBody NewUserRequest dto) {
         log.info("POST new user={}", dto);
+
         return adminUserService.createUser(dto);
     }
 
@@ -44,6 +46,7 @@ public class AdminUserController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public Mono<Void> deleteUser(@PathVariable Integer id) {
         log.info("DELETE user id={}", id);
+
         return adminUserService.deleteUser(id);
     }
 

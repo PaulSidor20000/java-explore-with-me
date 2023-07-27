@@ -1,6 +1,5 @@
 package ru.practicum.ewm.locations.service;
 
-import org.springframework.data.domain.Pageable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.practicum.ewm.locations.dto.LocationDto;

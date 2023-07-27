@@ -1,11 +1,10 @@
 package ru.practicum.ewm.locations.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import ru.practicum.ewm.exceptions.NotFoundException;
 import ru.practicum.ewm.locations.dto.LocationDto;
 import ru.practicum.ewm.locations.dto.LocationMapper;
 import ru.practicum.ewm.locations.repository.LocationRepository;
@@ -25,7 +24,8 @@ public class PublicLocationServiceImpl implements PublicLocationService {
     @Override
     public Mono<LocationDto> findLocationById(int locationId) {
         return locationRepository.findById(locationId)
-                .map(locationMapper::map);
+                .map(locationMapper::map)
+                .switchIfEmpty(Mono.error(new NotFoundException(String.format("Location with id=%d was not found", locationId))));
     }
 
 }

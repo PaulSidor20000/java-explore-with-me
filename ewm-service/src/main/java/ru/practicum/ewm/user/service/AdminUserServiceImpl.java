@@ -5,7 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import ru.practicum.ewm.exceptions.UserNotFoundException;
+import ru.practicum.ewm.exceptions.NotFoundException;
 import ru.practicum.ewm.user.dto.NewUserRequest;
 import ru.practicum.ewm.user.dto.UserDto;
 import ru.practicum.ewm.user.dto.UserMapper;
@@ -35,7 +35,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Override
     public Mono<Void> deleteUser(int userId) {
         return userRepository.findById(userId)
-                .switchIfEmpty(Mono.error(new UserNotFoundException(userId)))
+                .switchIfEmpty(Mono.error(new NotFoundException(String.format("User with id=%d was not found", userId))))
                 .then(userRepository.deleteById(userId));
     }
 

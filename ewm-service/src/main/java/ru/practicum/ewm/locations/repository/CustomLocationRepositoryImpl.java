@@ -1,7 +1,6 @@
 package ru.practicum.ewm.locations.repository;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Pageable;
 import org.springframework.r2dbc.core.DatabaseClient;
 import reactor.core.publisher.Flux;
 import ru.practicum.ewm.locations.dto.LocationDto;

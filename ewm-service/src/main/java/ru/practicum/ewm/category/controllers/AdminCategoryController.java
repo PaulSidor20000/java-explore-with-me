@@ -22,6 +22,7 @@ public class AdminCategoryController {
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<CategoryDto> createCategory(@Valid @RequestBody NewCategoryDto dto) {
         log.info("POST new category={}", dto);
+
         return adminCategoryService.createCategory(dto);
     }
 
@@ -29,6 +30,7 @@ public class AdminCategoryController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public Mono<Void> deleteCategory(@PathVariable Integer id) {
         log.info("DELETE delete category id={}", id);
+
         return adminCategoryService.deleteCategory(id);
     }
 
@@ -38,6 +40,7 @@ public class AdminCategoryController {
                                             @PathVariable Integer id
     ) {
         log.info("PATCH update category id={}, category={}", id, dto);
+
         return adminCategoryService.updateCategory(id, dto);
     }
 

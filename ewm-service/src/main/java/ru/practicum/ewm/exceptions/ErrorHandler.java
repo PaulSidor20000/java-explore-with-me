@@ -36,14 +36,8 @@ public class ErrorHandler {
         return ResponseEntity.status(400).body(response(error, HttpStatus.BAD_REQUEST));
     }
 
-    @ExceptionHandler({
-            CategoryNotFoundException.class,
-            UserNotFoundException.class,
-            LocationNotFoundException.class,
-            EventNotFoundException.class
-    })
-    public ResponseEntity<ApiError> validationEntityHandler(RuntimeException error) {
-        log.warn(LOG_ERROR, error.getMessage());
+    @ExceptionHandler
+    public ResponseEntity<ApiError> validationEntityHandler(NotFoundException error) {
         return ResponseEntity.status(404).body(response(error, HttpStatus.NOT_FOUND));
     }
 

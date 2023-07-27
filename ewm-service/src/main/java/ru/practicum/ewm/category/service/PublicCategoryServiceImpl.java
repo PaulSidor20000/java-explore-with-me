@@ -8,6 +8,7 @@ import reactor.core.publisher.Mono;
 import ru.practicum.ewm.category.dto.CategoryDto;
 import ru.practicum.ewm.category.dto.CategoryMapper;
 import ru.practicum.ewm.category.repository.CategoryRepository;
+import ru.practicum.ewm.exceptions.NotFoundException;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +25,8 @@ public class PublicCategoryServiceImpl implements PublicCategoryService {
     @Override
     public Mono<CategoryDto> findCategoryById(int categoryId) {
         return categoryRepository.findById(categoryId)
-                .map(categoryMapper::map);
+                .map(categoryMapper::map)
+                .switchIfEmpty(Mono.error(new NotFoundException(String.format("Category with id=%d was not found", categoryId))));
     }
 
 }

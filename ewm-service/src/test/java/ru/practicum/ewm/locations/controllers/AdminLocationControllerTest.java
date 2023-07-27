@@ -1,4 +1,4 @@
-package ru.practicum.ewm.locations.web;
+package ru.practicum.ewm.locations.controllers;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.DisplayName;
@@ -9,7 +9,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
-import ru.practicum.ewm.locations.controllers.AdminLocationController;
 import ru.practicum.ewm.locations.dto.LocationDto;
 import ru.practicum.ewm.locations.dto.NewLocationDto;
 import ru.practicum.ewm.locations.service.AdminLocationService;
