@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.server.ServerWebInputException;
 
 import javax.validation.ConstraintViolationException;
 import java.io.PrintWriter;
@@ -23,15 +24,11 @@ public class ErrorHandler {
     private static final String DB_REASON = "Integrity constraint has been violated.";
     private static final String NOT_VALID_REASON = "Incorrectly made request.";
 
-//    @ExceptionHandler
-//    public ResponseEntity<ApiError> validationHandler(MethodArgumentNotValidException error) {
-//        return ResponseEntity.status(400).body(response(error, HttpStatus.BAD_REQUEST));
-//    }
-
     @ExceptionHandler({
             ConstraintViolationException.class,
             IllegalArgumentException.class,
             MethodArgumentNotValidException.class,
+            ServerWebInputException.class,
             EventConditionException.class,
             BadRequestException.class
     })
@@ -44,7 +41,6 @@ public class ErrorHandler {
             UserNotFoundException.class,
             LocationNotFoundException.class,
             EventNotFoundException.class
-
     })
     public ResponseEntity<ApiError> validationEntityHandler(RuntimeException error) {
         log.warn(LOG_ERROR, error.getMessage());
@@ -61,14 +57,13 @@ public class ErrorHandler {
         return ResponseEntity.status(409).body(response(error, HttpStatus.CONFLICT));
     }
 
-//    @ExceptionHandler
-//    public ResponseEntity<ApiError> otherServerErrorsHandler(Throwable error) {
-//        log.warn(LOG_ERROR, error.getMessage());
-//        return ResponseEntity.status(500).body(response(error, HttpStatus.INTERNAL_SERVER_ERROR));
-//    }
+    @ExceptionHandler
+    public ResponseEntity<ApiError> otherServerErrorsHandler(Throwable error) {
+        return ResponseEntity.status(500).body(response(error, HttpStatus.INTERNAL_SERVER_ERROR));
+    }
 
     private static ApiError response(Throwable error, HttpStatus status) {
-        log.warn(LOG_ERROR, error.getMessage());
+        log.warn(LOG_ERROR, error.getClass() + " : " + error.getMessage());
 
         return ApiError.builder()
                 .message(error.getMessage())
@@ -89,7 +84,9 @@ public class ErrorHandler {
         if (error instanceof DataIntegrityViolationException) {
             return DB_REASON;
         } else if (error instanceof MethodArgumentNotValidException ||
-                error instanceof ConstraintViolationException) {
+                error instanceof ConstraintViolationException ||
+                error instanceof ServerWebInputException
+        ) {
             return NOT_VALID_REASON;
         }
         return error.getLocalizedMessage();
@@ -103,40 +100,5 @@ public class ErrorHandler {
         }
         return status;
     }
-
-//    public static boolean isStatus409(Throwable error) {
-//        return error instanceof DataIntegrityViolationException ||
-//                error instanceof RequestConditionException ||
-//                error instanceof LocationConditionException ||
-//                error instanceof CategoryConditionException;
-//    }
-
-//    public static boolean isStatus400(Throwable error) {
-//        return error instanceof ConstraintViolationException ||
-//                error instanceof MethodArgumentNotValidException ||
-//                error instanceof EventConditionException ||
-//                error instanceof BadRequestException;
-
-//    }
-//    public static boolean isStatus404(Throwable error) {
-//        return error instanceof CategoryNotFoundException ||
-//                error instanceof UserNotFoundException ||
-//                error instanceof LocationNotFoundException ||
-//                error instanceof EventNotFoundException;
-
-//    }
-//    public static Mono<ServerResponse> handler(Throwable error) {
-//        if (isStatus400(error)) {
-//            return response(error, HttpStatus.BAD_REQUEST);
-//        }
-//        if (isStatus404(error)) {
-//            return response(error, HttpStatus.NOT_FOUND);
-//        }
-//        if (isStatus409(error)) {
-//            return response(error, HttpStatus.CONFLICT);
-//        }
-//        return response(error, HttpStatus.INTERNAL_SERVER_ERROR);
-
-//    }
 
 }

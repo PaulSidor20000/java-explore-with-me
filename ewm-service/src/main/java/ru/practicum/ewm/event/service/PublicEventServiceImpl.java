@@ -15,6 +15,7 @@ import ru.practicum.ewm.event.dto.EventShortDto;
 import ru.practicum.ewm.event.repository.EventRepository;
 import ru.practicum.ewm.exceptions.BadRequestException;
 import ru.practicum.ewm.exceptions.EventNotFoundException;
+import ru.practicum.ewm.utils.EventValidator;
 import ru.practicum.statclient.client.StatClient;
 import ru.practicum.statdto.dto.ViewStats;
 
@@ -25,13 +26,16 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PublicEventServiceImpl implements PublicEventService {
     private final EventRepository eventRepository;
+    private final EventValidator eventValidator;
     private final ObjectMapper objectMapper;
     private final EventMapper eventMapper;
     private final StatClient client;
 
     @Override
     public Flux<EventShortDto> findEvents(EventParams params) {
-        return eventRepository.getPublicEventShortDtos(params)
+        return Mono.just(params)
+                .doOnNext(eventValidator::validateParams)
+                .flatMapMany(eventRepository::getPublicEventShortDtos)
                 .flatMap(dto ->
                         getHits(List.of("/events/" + dto.getId())).singleOrEmpty()
                                 .map(viewStats -> eventMapper.enrich(dto, viewStats))

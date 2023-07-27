@@ -34,15 +34,10 @@ public class AdminEventController {
     @ResponseStatus(HttpStatus.OK)
     public Mono<EventFullDto> updateEvent(@Valid @RequestBody UpdateEventAdminRequest updateEventAdminRequest,
                                           @PathVariable Integer eventId
-                                          ) {
+    ) {
         log.info("PATCH update event admin request={}, eventId={}", updateEventAdminRequest, eventId);
 
         return Mono.just(updateEventAdminRequest)
-//                .doOnNext(dto -> {
-//                    if (dto.getAnnotation() != null && dto.getDescription() != null && dto.getTitle() != null) {
-//                        validator.validate(dto);
-//                    }
-//                })
                 .flatMap(dto -> {
                     if (dto.getLocation() != null) {
                         return adminLocationService.createLocationFromEvent(dto);

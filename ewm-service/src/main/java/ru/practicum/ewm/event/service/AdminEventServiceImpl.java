@@ -17,16 +17,19 @@ import ru.practicum.ewm.utils.EventValidator;
 public class AdminEventServiceImpl implements AdminEventService {
     private final EventMapper mapper;
     private final EventRepository eventRepository;
+    private final EventValidator eventValidator;
 
     @Override
     public Flux<EventFullDto> findEvents(EventParams params) {
-        return eventRepository.getAdminEventFullDtos(params);
+        return Mono.just(params)
+                .doOnNext(eventValidator::validateParams)
+                .flatMapMany(eventRepository::getAdminEventFullDtos);
     }
 
     @Override
     public Mono<EventFullDto> updateEvent(int eventId, UpdateEventAdminRequest dto) {
         return eventRepository.findById(eventId)
-                .flatMap(entity -> EventValidator.adminUpdateEventAdminRequestValidator(entity, dto))
+                .flatMap(entity -> eventValidator.adminUpdateEventAdminRequestValidator(entity, dto))
                 .map(entity -> mapper.merge(entity, dto))
                 .flatMap(eventRepository::save)
                 .map(Event::getId)

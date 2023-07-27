@@ -23,8 +23,10 @@ import java.util.List;
 public class PrivateEventServiceImpl implements PrivateEventService {
     private final EventMapper eventMapper;
     private final RequestMapper requestMapper;
+    private final RequestValidator requestValidator;
     private final RequestRepository requestRepository;
     private final EventRepository eventRepository;
+    private final EventValidator eventValidator;
 
     @Override
     public Flux<EventShortDto> findUserEvents(int userId, Integer from, Integer size) {
@@ -46,7 +48,7 @@ public class PrivateEventServiceImpl implements PrivateEventService {
     @Override
     public Mono<EventFullDto> updateUserEventById(int userId, int eventId, UpdateEventUserRequest dto) {
         return eventRepository.findById(eventId)
-                .flatMap(entity -> EventValidator.privateUpdateEventUserRequestValidator(entity, dto))
+                .flatMap(entity -> eventValidator.privateUpdateEventUserRequestValidator(entity, dto))
                 .map(entity -> eventMapper.merge(entity, dto))
                 .flatMap(eventRepository::save)
                 .map(Event::getId)
@@ -65,10 +67,10 @@ public class PrivateEventServiceImpl implements PrivateEventService {
         List<ParticipationRequestDto> rejected = new ArrayList<>();
 
         return Flux.zip(requestRepository.findAllById(dto.getRequestIds())
-                                .filter(RequestValidator::isRequestPending),
+                                .filter(requestValidator::isRequestPending),
                         eventRepository.findByIdAndUserId(eventId, userId),
                         requestRepository.countByEventAndStatus(eventId, RequestStatus.CONFIRMED))
-                .map(data -> RequestValidator.updateRequests(data.getT1(), data.getT2(), data.getT3(), dto.getStatus()))
+                .map(data -> requestValidator.updateRequests(data.getT1(), data.getT2(), data.getT3(), dto.getStatus()))
                 .flatMap(requestRepository::save)
                 .map(requestMapper::map)
                 .doOnNext(participationRequestDto -> {

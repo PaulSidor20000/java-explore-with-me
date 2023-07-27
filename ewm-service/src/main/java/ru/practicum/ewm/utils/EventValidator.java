@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 import ru.practicum.ewm.event.dto.*;
 import ru.practicum.ewm.event.entity.Event;
+import ru.practicum.ewm.exceptions.BadRequestException;
 import ru.practicum.ewm.exceptions.EventConditionException;
 import ru.practicum.ewm.exceptions.RequestConditionException;
 
@@ -23,7 +24,7 @@ public class EventValidator {
         }
     }
 
-    public static Mono<Event> adminUpdateEventAdminRequestValidator(Event entity, UpdateEventAdminRequest dto) {
+    public Mono<Event> adminUpdateEventAdminRequestValidator(Event entity, UpdateEventAdminRequest dto) {
         if (dto.getEventDate() != null) {
             checkEventDate(LocalDateTime.parse(dto.getEventDate(), formatter));
         }
@@ -45,7 +46,7 @@ public class EventValidator {
         return Mono.just(entity);
     }
 
-    public static Mono<Event> privateUpdateEventUserRequestValidator(Event entity, AbstractionEventDto dto) {
+    public Mono<Event> privateUpdateEventUserRequestValidator(Event entity, AbstractionEventDto dto) {
         if (entity.getState() == EventState.PUBLISHED) {
             throw new RequestConditionException("Only pending or canceled events can be changed");
         }
@@ -55,7 +56,18 @@ public class EventValidator {
         return Mono.just(entity);
     }
 
-    private static void checkEventDate(LocalDateTime eventDate) {
+    public void validateParams(EventParams params) {
+        if (params.getRangeStart() != null && params.getRangeEnd() != null) {
+            LocalDateTime start = LocalDateTime.parse(params.getRangeStart(), formatter);
+            LocalDateTime end = LocalDateTime.parse(params.getRangeEnd(), formatter);
+
+            if (start.isAfter(end)) {
+                throw new BadRequestException("Start time must be before end time");
+            }
+        }
+    }
+
+    private void checkEventDate(LocalDateTime eventDate) {
         if (LocalDateTime.now().plusHours(2).isAfter(eventDate)) {
             throw new EventConditionException(eventDate);
         }

@@ -13,11 +13,11 @@ import java.util.Set;
 public class DtoValidator {
     private final Validator validator;
 
-    public <T> void validate(T dto) {
-        Set<ConstraintViolation<T>> violations = validator.validate(dto);
-        if (!violations.isEmpty()) {
-            throw new ConstraintViolationException(violations);
-        }
-    }
+//    public <T> void validate(T dto) {
+//        Set<ConstraintViolation<T>> violations = validator.validate(dto);
+//        if (!violations.isEmpty()) {
+//            throw new ConstraintViolationException(violations);
+//        }
+//    }
 
 }

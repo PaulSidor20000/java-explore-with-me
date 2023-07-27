@@ -24,7 +24,7 @@ public class AdminUserController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public Flux<UserDto> findUsers(@RequestParam List<Integer> ids,
+    public Flux<UserDto> findUsers(@RequestParam(required = false) List<Integer> ids,
                                    @RequestParam(defaultValue = "0") Integer from,
                                    @RequestParam(defaultValue = "10") Integer size
     ) {
