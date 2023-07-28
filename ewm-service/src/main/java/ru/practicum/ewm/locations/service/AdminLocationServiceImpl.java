@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 import ru.practicum.ewm.event.dto.AbstractionEventDto;
-import ru.practicum.ewm.event.entity.Event;
 import ru.practicum.ewm.event.repository.EventRepository;
 import ru.practicum.ewm.exceptions.BadRequestException;
 import ru.practicum.ewm.exceptions.LocationConditionException;
@@ -29,7 +28,8 @@ public class AdminLocationServiceImpl implements AdminLocationService {
         return getGeoData(dto)
                 .map(locationMapper::map)
                 .flatMap(locationRepository::save)
-                .map(locationMapper::map);
+                .map(locationMapper::map)
+                .switchIfEmpty(Mono.error(new BadRequestException("Wrong request for getting geo data")));
     }
 
     @Override
@@ -46,14 +46,19 @@ public class AdminLocationServiceImpl implements AdminLocationService {
                     dto.getLocation().setId(location.getId());
                     dto.getLocation().setName(location.getName());
                     return dto;
-                });
+                })
+                .switchIfEmpty(Mono.error(new BadRequestException("Wrong request for getting geo data")));
     }
 
     @Override
     public Mono<Void> deleteLocation(int locationId) {
         return eventRepository.findByLocationId(locationId)
-                .doOnNext(this::doThrow)
-                .then(locationRepository.deleteById(locationId));
+                .handle((event, sink) -> {
+                    if (event != null) {
+                        sink.error(new LocationConditionException(event));
+                    }
+                })
+                .switchIfEmpty(locationRepository.deleteById(locationId)).then();
     }
 
     private <T extends AbstractLocation> Mono<GeoData> getGeoData(T dto) {
@@ -66,14 +71,16 @@ public class AdminLocationServiceImpl implements AdminLocationService {
         if (dto.getName() != null) {
             return geoClient.get(dto.getName());
         } else {
-            throw new BadRequestException("Wrong request for getting geo data");
+            return Mono.empty();
         }
     }
 
-    private void doThrow(Event event) {
-        if (event != null) {
-            throw new LocationConditionException(event);
-        }
-    }
+//    private <T> Mono<T> doThrow(T event) {
+//        if (event != null) {
+//            return Mono.empty();
+////            throw new LocationConditionException(event);
+//        }
+//        return null;
+//    }
 
 }

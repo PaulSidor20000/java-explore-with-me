@@ -34,6 +34,20 @@ class StatClientImpl implements StatClient {
                 .bodyToMono(String.class);
     }
 
+    public Flux<String> get(Collection<String> uris, String serverUri) {
+        return get(
+                LocalDateTime.now().minusYears(100).format(formatter),
+                LocalDateTime.now().plusYears(100).format(formatter),
+                uris, false, serverUri);
+    }
+
+    public Flux<String> get(Collection<String> uris, Boolean unique, String serverUri) {
+        return get(
+                LocalDateTime.now().minusYears(100).format(formatter),
+                LocalDateTime.now().plusYears(100).format(formatter),
+                uris, unique, serverUri);
+    }
+
     @Override
     public Flux<String> get(Collection<String> uris) {
         return get(
@@ -42,26 +56,12 @@ class StatClientImpl implements StatClient {
                 uris, false, SERVER_URI);
     }
 
-    public Flux<String> get(Collection<String> uris, String serverUri) {
-        return get(
-                LocalDateTime.now().minusYears(100).format(formatter),
-                LocalDateTime.now().plusYears(100).format(formatter),
-                uris, false, serverUri);
-    }
-
     @Override
     public Flux<String> get(Collection<String> uris, Boolean unique) {
         return get(
                 LocalDateTime.now().minusYears(100).format(formatter),
                 LocalDateTime.now().plusYears(100).format(formatter),
                 uris, unique, SERVER_URI);
-    }
-
-    public Flux<String> get(Collection<String> uris, Boolean unique, String serverUri) {
-        return get(
-                LocalDateTime.now().minusYears(100).format(formatter),
-                LocalDateTime.now().plusYears(100).format(formatter),
-                uris, unique, serverUri);
     }
 
     @Override

@@ -1,17 +1,18 @@
 package ru.practicum.ewm.locations.service;
 
-import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
+import ru.practicum.ewm.event.dto.NewEventDto;
+import ru.practicum.ewm.event.entity.Event;
 import ru.practicum.ewm.event.repository.EventRepository;
+import ru.practicum.ewm.exceptions.BadRequestException;
+import ru.practicum.ewm.exceptions.LocationConditionException;
 import ru.practicum.ewm.locations.dto.LocationDto;
 import ru.practicum.ewm.locations.dto.LocationMapper;
 import ru.practicum.ewm.locations.dto.NewLocationDto;
@@ -21,8 +22,7 @@ import ru.practicum.geoclient.client.GeoClient;
 import ru.practicum.geoclient.client.model.GeoData;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.anyFloat;
-import static org.mockito.Mockito.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -37,30 +37,145 @@ class AdminLocationServiceImplTest {
     private GeoClient geoClient;
     @InjectMocks
     private AdminLocationServiceImpl adminLocationService;
-    private final NewLocationDto newLocationDto = NewLocationDto.builder().lon(0F).lat(0F).build();
+    private final NewLocationDto newLocationDtoEmpty = NewLocationDto.builder().build();
+    private final NewLocationDto newLocationDtoName = NewLocationDto.builder().name("test").build();
+    private final NewLocationDto newLocationDtoCoordinates = NewLocationDto.builder().lon(0F).lat(0F).build();
+    private final NewLocationDto newLocationDtoFull = NewLocationDto.builder().lon(0F).lat(0F).name("test").build();
     private final Location location = Location.builder().id(1).lon(0F).lat(0F).name("test").build();
     private final LocationDto locationDto = LocationDto.builder().id(1).lon(0F).lat(0F).name("test").build();
     private final GeoData geoData = GeoData.builder().lon(0F).lat(0F).name("test").build();
 
-    @BeforeEach
-    void setUp() {
+    @Test
+    void createLocationWithFullGeoData() {
+        when(locationMapper.map(any(GeoData.class))).thenReturn(location);
+        when(locationMapper.map(any(NewLocationDto.class))).thenReturn(geoData);
+        when(locationMapper.map(any(Location.class))).thenReturn(locationDto);
+        when(locationRepository.save(any(Location.class))).thenReturn(Mono.just(location));
 
+        adminLocationService.createLocation(newLocationDtoFull)
+                .as(StepVerifier::create)
+                .consumeNextWith(dto -> assertEquals(locationDto, dto))
+                .verifyComplete();
     }
 
     @Test
-    void createLocation() {
+    void createLocationWithCoordinatesGeoData() {
+        when(locationMapper.map(any(GeoData.class))).thenReturn(location);
+        when(locationMapper.map(any(Location.class))).thenReturn(locationDto);
         when(geoClient.get(anyFloat(), anyFloat())).thenReturn(Mono.just(geoData));
-//        when(locationRepository.save(new Location())).thenReturn(Mono.just(location));
+        when(locationRepository.save(any(Location.class))).thenReturn(Mono.just(location));
 
-        adminLocationService.createLocation(newLocationDto)
-                .subscribe(dto -> assertEquals(geoData, dto));
+        adminLocationService.createLocation(newLocationDtoCoordinates)
+                .as(StepVerifier::create)
+                .consumeNextWith(dto -> assertEquals(locationDto, dto))
+                .verifyComplete();
     }
 
     @Test
-    void createLocationFromEvent() {
+    void createLocationWithNameGeoData() {
+        when(locationMapper.map(any(GeoData.class))).thenReturn(location);
+        when(locationMapper.map(any(Location.class))).thenReturn(locationDto);
+        when(geoClient.get(anyString())).thenReturn(Mono.just(geoData));
+        when(locationRepository.save(any(Location.class))).thenReturn(Mono.just(location));
+
+        adminLocationService.createLocation(newLocationDtoName)
+                .as(StepVerifier::create)
+                .consumeNextWith(dto -> assertEquals(locationDto, dto))
+                .verifyComplete();
     }
 
     @Test
-    void deleteLocation() {
+    void createLocationWithNoGeoData() {
+        adminLocationService.createLocation(newLocationDtoEmpty)
+                .as(StepVerifier::create)
+                .expectError(BadRequestException.class)
+                .verify();
     }
+
+    @Test
+    void createLocationFromEventWithFullGeoData() {
+        NewEventDto event = NewEventDto.builder().location(newLocationDtoFull).build();
+
+        when(locationMapper.map(any(GeoData.class))).thenReturn(location);
+        when(locationMapper.map(any(NewLocationDto.class))).thenReturn(geoData);
+        when(locationRepository.save(any(Location.class))).thenReturn(Mono.just(location));
+
+        adminLocationService.createLocationFromEvent(event)
+                .as(StepVerifier::create)
+                .consumeNextWith(dto -> {
+                    assertEquals(1, dto.getLocation().getId());
+                    assertEquals("test", dto.getLocation().getName());
+                    assertEquals(0.0F, dto.getLocation().getLon());
+                    assertEquals(0.0F, dto.getLocation().getLat());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    void createLocationFromEventWithCoordinatesGeoData() {
+        NewEventDto event = NewEventDto.builder().location(newLocationDtoCoordinates).build();
+
+        when(locationMapper.map(any(GeoData.class))).thenReturn(location);
+        when(geoClient.get(anyFloat(), anyFloat())).thenReturn(Mono.just(geoData));
+        when(locationRepository.save(any(Location.class))).thenReturn(Mono.just(location));
+
+        adminLocationService.createLocationFromEvent(event)
+                .as(StepVerifier::create)
+                .consumeNextWith(dto -> {
+                    assertEquals(1, dto.getLocation().getId());
+                    assertEquals("test", dto.getLocation().getName());
+                    assertEquals(0.0F, dto.getLocation().getLon());
+                    assertEquals(0.0F, dto.getLocation().getLat());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    void createLocationFromEventWithNameGeoData() {
+        NewEventDto event = NewEventDto.builder().location(newLocationDtoName).build();
+
+        when(locationMapper.map(any(GeoData.class))).thenReturn(location);
+        when(geoClient.get(anyString())).thenReturn(Mono.just(geoData));
+        when(locationRepository.save(any(Location.class))).thenReturn(Mono.just(location));
+
+        adminLocationService.createLocationFromEvent(event)
+                .as(StepVerifier::create)
+                .consumeNextWith(dto -> {
+                    assertEquals(1, dto.getLocation().getId());
+                    assertEquals("test", dto.getLocation().getName());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    void createLocationFromEventWithNoGeoData() {
+        NewEventDto event = NewEventDto.builder().location(newLocationDtoEmpty).build();
+
+        adminLocationService.createLocationFromEvent(event)
+                .as(StepVerifier::create)
+                .expectError(BadRequestException.class)
+                .verify();
+    }
+
+    @Test
+    void deleteLocationWhenEventAssigned() {
+        when(eventRepository.findByLocationId(anyInt())).thenReturn(Flux.just(new Event()));
+        when(locationRepository.deleteById(anyInt())).thenReturn(Mono.empty());
+
+        adminLocationService.deleteLocation(1)
+                .as(StepVerifier::create)
+                .expectError(LocationConditionException.class)
+                .verify();
+    }
+
+    @Test
+    void deleteLocationWhenEventNotAssigned() {
+        when(eventRepository.findByLocationId(anyInt())).thenReturn(Flux.empty());
+        when(locationRepository.deleteById(anyInt())).thenReturn(Mono.empty());
+
+        adminLocationService.deleteLocation(1)
+                .as(StepVerifier::create)
+                .verifyComplete();
+    }
+
 }
