@@ -10,10 +10,10 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.practicum.ewm.locations.dto.LocationDto;
+import ru.practicum.ewm.locations.dto.LocationParams;
 import ru.practicum.ewm.locations.service.PublicLocationService;
 
-import static org.mockito.ArgumentMatchers.anyFloat;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @WebFluxTest(controllers = PublicLocationController.class)
@@ -27,7 +27,7 @@ class PublicLocationControllerTest {
     @Test
     @DisplayName("GET /locations should return array of LocationDtos")
     void findLocations() {
-        when(publicLocationService.findLocations(anyInt(), anyFloat(), anyFloat(), anyInt(), anyInt()))
+        when(publicLocationService.findLocations(any(LocationParams.class)))
                 .thenReturn(Flux.just(locationDto));
 
         client.get()

@@ -15,6 +15,7 @@ import ru.practicum.ewm.exceptions.BadRequestException;
 import ru.practicum.statclient.client.StatClient;
 import ru.practicum.statdto.dto.RequestDto;
 
+import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -30,7 +31,7 @@ public class PublicEventController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public Mono<List<EventShortDto>> findEvents(@ModelAttribute EventParams params,
+    public Mono<List<EventShortDto>> findEvents(@Valid @ModelAttribute EventParams params,
                                                 ServerHttpRequest request
     ) {
         log.info("GET event by params={}", params);

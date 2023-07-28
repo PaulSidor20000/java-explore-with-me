@@ -7,6 +7,7 @@ import reactor.core.publisher.Mono;
 import ru.practicum.ewm.exceptions.NotFoundException;
 import ru.practicum.ewm.locations.dto.LocationDto;
 import ru.practicum.ewm.locations.dto.LocationMapper;
+import ru.practicum.ewm.locations.dto.LocationParams;
 import ru.practicum.ewm.locations.repository.LocationRepository;
 
 
@@ -17,8 +18,8 @@ public class PublicLocationServiceImpl implements PublicLocationService {
     private final LocationRepository locationRepository;
 
     @Override
-    public Flux<LocationDto> findLocations(Integer radius, Float lon, Float lat, Integer from, Integer size) {
-        return locationRepository.findLocationsByParams(radius, lon, lat, from, size);
+    public Flux<LocationDto> findLocations(LocationParams params) {
+        return locationRepository.findLocationsByParams(params);
     }
 
     @Override
