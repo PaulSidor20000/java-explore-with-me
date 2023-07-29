@@ -13,7 +13,8 @@ import ru.practicum.ewm.locations.dto.LocationDto;
 import ru.practicum.ewm.locations.dto.LocationParams;
 import ru.practicum.ewm.locations.service.PublicLocationService;
 
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
 @WebFluxTest(controllers = PublicLocationController.class)

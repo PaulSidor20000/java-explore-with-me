@@ -43,6 +43,10 @@ public class EventValidator {
         if (entity.getState() != EventState.PENDING) {
             throw new RequestConditionException(entity.getState());
         }
+        if (dto.getCategory() != null && dto.getCategory() != entity.getCategoryId()) {
+            throw new RequestConditionException(String.format(
+                    "Requested category id=%d not match with event category id=%d", dto.getCategory(), entity.getCategoryId()));
+        }
         return Mono.just(entity);
     }
 

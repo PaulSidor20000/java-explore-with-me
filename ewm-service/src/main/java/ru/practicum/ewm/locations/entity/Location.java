@@ -1,6 +1,5 @@
 package ru.practicum.ewm.locations.entity;
 
-import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
