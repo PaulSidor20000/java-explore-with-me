@@ -15,7 +15,7 @@ public class CustomLocationRepositoryImpl implements CustomLocationRepository {
         String query = String.format(
                 "SELECT l.* FROM locations AS l %s %s",
                 params.getLon() != null && params.getLat() != null && params.getRadius() != null
-                        ? "AND distance(l.lat, l.lon, :lat2::real, :lon2::real) < :radius::real" : "",
+                        ? "WHERE distance(l.lat, l.lon, :lat2::real, :lon2::real) < :radius::real" : "",
                 "LIMIT (:size)::bigint OFFSET (:from)::bigint;");
         DatabaseClient.GenericExecuteSpec bindings = client.sql(query);
 
@@ -30,4 +30,5 @@ public class CustomLocationRepositoryImpl implements CustomLocationRepository {
                 .fetch().all()
                 .mapNotNull(LocationDto::map);
     }
+
 }

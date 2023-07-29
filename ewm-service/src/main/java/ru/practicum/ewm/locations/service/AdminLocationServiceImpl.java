@@ -75,12 +75,4 @@ public class AdminLocationServiceImpl implements AdminLocationService {
         }
     }
 
-//    private <T> Mono<T> doThrow(T event) {
-//        if (event != null) {
-//            return Mono.empty();
-////            throw new LocationConditionException(event);
-//        }
-//        return null;
-//    }
-
 }

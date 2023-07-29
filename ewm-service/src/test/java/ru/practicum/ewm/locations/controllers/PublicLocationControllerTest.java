@@ -48,6 +48,26 @@ class PublicLocationControllerTest {
     }
 
     @Test
+    @DisplayName("GET /locations should return array of LocationDtos")
+    void findLocationsNoParams() {
+        when(publicLocationService.findLocations(any(LocationParams.class)))
+                .thenReturn(Flux.just(locationDto));
+
+        client.get()
+                .uri(uriBuilder ->
+                        uriBuilder
+                                .path("/locations")
+                                .build())
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .jsonPath("$[0].id").isNotEmpty()
+                .jsonPath("$[0].name").isEqualTo(locationDto.getName())
+                .jsonPath("$[0].lon").isEqualTo(locationDto.getLon())
+                .jsonPath("$[0].lat").isEqualTo(locationDto.getLat());
+    }
+
+    @Test
     @DisplayName("GET /locations should return 400 bad request")
     void findLocationsBadRequestNegativeRadius() {
         client.get()
@@ -57,18 +77,6 @@ class PublicLocationControllerTest {
                                 .queryParam("radius", -1)
                                 .queryParam("lon", 0)
                                 .queryParam("lat", 0)
-                                .build())
-                .exchange()
-                .expectStatus().isBadRequest();
-    }
-
-    @Test
-    @DisplayName("GET /locations should return 400 bad request")
-    void findLocationsBadRequestNoParams() {
-        client.get()
-                .uri(uriBuilder ->
-                        uriBuilder
-                                .path("/locations")
                                 .build())
                 .exchange()
                 .expectStatus().isBadRequest();

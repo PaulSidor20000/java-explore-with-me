@@ -10,7 +10,6 @@ import ru.practicum.ewm.locations.dto.LocationMapper;
 import ru.practicum.ewm.locations.dto.LocationParams;
 import ru.practicum.ewm.locations.repository.LocationRepository;
 
-
 @Service
 @RequiredArgsConstructor
 public class PublicLocationServiceImpl implements PublicLocationService {

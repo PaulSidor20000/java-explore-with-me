@@ -41,46 +41,49 @@ class AdminLocationServiceImplTest {
     private final NewLocationDto newLocationDtoName = NewLocationDto.builder().name("test").build();
     private final NewLocationDto newLocationDtoCoordinates = NewLocationDto.builder().lon(0F).lat(0F).build();
     private final NewLocationDto newLocationDtoFull = NewLocationDto.builder().lon(0F).lat(0F).name("test").build();
+    private final LocationDto LocationDtoEmpty = LocationDto.builder().build();
+    private final LocationDto LocationDtoName = LocationDto.builder().name("test").build();
+    private final LocationDto LocationDtoCoordinates = LocationDto.builder().lon(0F).lat(0F).build();
+    private final LocationDto LocationDtoFull = LocationDto.builder().lon(0F).lat(0F).name("test").build();
     private final Location location = Location.builder().id(1).lon(0F).lat(0F).name("test").build();
-    private final LocationDto locationDto = LocationDto.builder().id(1).lon(0F).lat(0F).name("test").build();
     private final GeoData geoData = GeoData.builder().lon(0F).lat(0F).name("test").build();
 
     @Test
     void createLocationWithFullGeoData() {
         when(locationMapper.map(any(GeoData.class))).thenReturn(location);
         when(locationMapper.map(any(NewLocationDto.class))).thenReturn(geoData);
-        when(locationMapper.map(any(Location.class))).thenReturn(locationDto);
+        when(locationMapper.map(any(Location.class))).thenReturn(LocationDtoFull);
         when(locationRepository.save(any(Location.class))).thenReturn(Mono.just(location));
 
         adminLocationService.createLocation(newLocationDtoFull)
                 .as(StepVerifier::create)
-                .consumeNextWith(dto -> assertEquals(locationDto, dto))
+                .consumeNextWith(dto -> assertEquals(LocationDtoFull, dto))
                 .verifyComplete();
     }
 
     @Test
     void createLocationWithCoordinatesGeoData() {
         when(locationMapper.map(any(GeoData.class))).thenReturn(location);
-        when(locationMapper.map(any(Location.class))).thenReturn(locationDto);
+        when(locationMapper.map(any(Location.class))).thenReturn(LocationDtoFull);
         when(geoClient.get(anyFloat(), anyFloat())).thenReturn(Mono.just(geoData));
         when(locationRepository.save(any(Location.class))).thenReturn(Mono.just(location));
 
         adminLocationService.createLocation(newLocationDtoCoordinates)
                 .as(StepVerifier::create)
-                .consumeNextWith(dto -> assertEquals(locationDto, dto))
+                .consumeNextWith(dto -> assertEquals(LocationDtoFull, dto))
                 .verifyComplete();
     }
 
     @Test
     void createLocationWithNameGeoData() {
         when(locationMapper.map(any(GeoData.class))).thenReturn(location);
-        when(locationMapper.map(any(Location.class))).thenReturn(locationDto);
+        when(locationMapper.map(any(Location.class))).thenReturn(LocationDtoFull);
         when(geoClient.get(anyString())).thenReturn(Mono.just(geoData));
         when(locationRepository.save(any(Location.class))).thenReturn(Mono.just(location));
 
         adminLocationService.createLocation(newLocationDtoName)
                 .as(StepVerifier::create)
-                .consumeNextWith(dto -> assertEquals(locationDto, dto))
+                .consumeNextWith(dto -> assertEquals(LocationDtoFull, dto))
                 .verifyComplete();
     }
 
@@ -94,10 +97,10 @@ class AdminLocationServiceImplTest {
 
     @Test
     void createLocationFromEventWithFullGeoData() {
-        NewEventDto event = NewEventDto.builder().location(newLocationDtoFull).build();
+        NewEventDto event = NewEventDto.builder().location(LocationDtoFull).build();
 
         when(locationMapper.map(any(GeoData.class))).thenReturn(location);
-        when(locationMapper.map(any(NewLocationDto.class))).thenReturn(geoData);
+        when(locationMapper.map(any(LocationDto.class))).thenReturn(geoData);
         when(locationRepository.save(any(Location.class))).thenReturn(Mono.just(location));
 
         adminLocationService.createLocationFromEvent(event)
@@ -113,7 +116,7 @@ class AdminLocationServiceImplTest {
 
     @Test
     void createLocationFromEventWithCoordinatesGeoData() {
-        NewEventDto event = NewEventDto.builder().location(newLocationDtoCoordinates).build();
+        NewEventDto event = NewEventDto.builder().location(LocationDtoCoordinates).build();
 
         when(locationMapper.map(any(GeoData.class))).thenReturn(location);
         when(geoClient.get(anyFloat(), anyFloat())).thenReturn(Mono.just(geoData));
@@ -132,7 +135,7 @@ class AdminLocationServiceImplTest {
 
     @Test
     void createLocationFromEventWithNameGeoData() {
-        NewEventDto event = NewEventDto.builder().location(newLocationDtoName).build();
+        NewEventDto event = NewEventDto.builder().location(LocationDtoName).build();
 
         when(locationMapper.map(any(GeoData.class))).thenReturn(location);
         when(geoClient.get(anyString())).thenReturn(Mono.just(geoData));
@@ -149,7 +152,7 @@ class AdminLocationServiceImplTest {
 
     @Test
     void createLocationFromEventWithNoGeoData() {
-        NewEventDto event = NewEventDto.builder().location(newLocationDtoEmpty).build();
+        NewEventDto event = NewEventDto.builder().location(LocationDtoEmpty).build();
 
         adminLocationService.createLocationFromEvent(event)
                 .as(StepVerifier::create)
