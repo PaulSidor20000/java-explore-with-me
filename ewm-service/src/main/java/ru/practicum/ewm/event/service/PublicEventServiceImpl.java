@@ -18,8 +18,10 @@ import ru.practicum.ewm.utils.EventValidator;
 import ru.practicum.statclient.client.StatClient;
 import ru.practicum.statdto.dto.ViewStats;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,14 +33,22 @@ public class PublicEventServiceImpl implements PublicEventService {
     private final StatClient client;
 
     @Override
-    public Flux<EventShortDto> findEvents(EventParams params) {
+    public Mono<List<EventShortDto>> findEvents(EventParams params) {
         return Mono.just(params)
                 .doOnNext(eventValidator::validateParams)
                 .flatMapMany(eventRepository::getPublicEventShortDtos)
-                .flatMap(dto ->
-                        getHits(List.of("/events/" + dto.getId())).singleOrEmpty()
-                                .map(viewStats -> eventMapper.enrich(dto, viewStats))
-                );
+                .collectMap(EventShortDto::getId)
+                .flatMap(mapDtos -> {
+                    final List<String> uris = new ArrayList<>();
+                    mapDtos.keySet().forEach(key -> uris.add("/events/" + key));
+                    return getHits(uris)
+                            .filter(viewStats -> viewStats.getUri() != null)
+                            .collectMap(viewStats -> Integer.parseInt(viewStats.getUri().split("/")[2]))
+                            .map(viewStatsMap ->
+                                    mapDtos.keySet().stream()
+                                            .map(key -> eventMapper.enrich(mapDtos.get(key), viewStatsMap.get(key)))
+                                            .collect(Collectors.toList()));
+                });
     }
 
     @Override

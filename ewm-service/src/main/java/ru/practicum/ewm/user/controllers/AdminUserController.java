@@ -23,7 +23,6 @@ public class AdminUserController {
     private final AdminUserService adminUserService;
 
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
     public Flux<UserDto> findUsers(@RequestParam(required = false) List<Integer> ids,
                                    @RequestParam(defaultValue = "0") Integer from,
                                    @RequestParam(defaultValue = "10") Integer size

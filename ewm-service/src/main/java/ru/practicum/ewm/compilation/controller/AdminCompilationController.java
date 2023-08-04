@@ -28,7 +28,6 @@ public class AdminCompilationController {
     }
 
     @PatchMapping("/{compId}")
-    @ResponseStatus(HttpStatus.OK)
     public Mono<CompilationDto> updateCompilation(@Valid @RequestBody UpdateCompilationRequest dto,
                                                   @PathVariable Integer compId
     ) {

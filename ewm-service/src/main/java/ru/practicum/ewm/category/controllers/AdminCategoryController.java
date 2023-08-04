@@ -35,7 +35,6 @@ public class AdminCategoryController {
     }
 
     @PatchMapping("{id}")
-    @ResponseStatus(HttpStatus.OK)
     public Mono<CategoryDto> updateCategory(@Valid @RequestBody NewCategoryDto dto,
                                             @PathVariable Integer id
     ) {

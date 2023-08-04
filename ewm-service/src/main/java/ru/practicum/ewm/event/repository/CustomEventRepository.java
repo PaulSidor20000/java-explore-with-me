@@ -14,7 +14,7 @@ public interface CustomEventRepository {
 
     Flux<EventFullDto> getAdminEventFullDtos(EventParams params);
 
-    Flux<EventShortDto> getPrivateEventShortDtos(int userId, Integer from, Integer size);
+    Flux<EventShortDto> getPrivateEventShortDtos(EventParams params);
 
     Flux<EventShortDto> getPublicEventShortDtos(EventParams params);
 }

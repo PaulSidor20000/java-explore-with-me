@@ -139,16 +139,16 @@ public class CustomEventRepositoryImpl implements CustomEventRepository {
     }
 
     @Override
-    public Flux<EventShortDto> getPrivateEventShortDtos(int userId, Integer from, Integer size) {
+    public Flux<EventShortDto> getPrivateEventShortDtos(EventParams params) {
         String query = EVENT_SHORT_JOIN +
-                " WHERE u.user_id = (:userId)" +
+                " WHERE u.user_id IN (:userId)" +
                 " GROUP BY e.event_id, category_name, user_name" +
                 " LIMIT (:size) OFFSET (:from)";
 
         return client.sql(query)
-                .bind("userId", userId)
-                .bind("from", from)
-                .bind("size", size)
+                .bind("userId", params.getUsers())
+                .bind("from", params.getFrom() != null ? params.getFrom() : 0)
+                .bind("size", params.getSize() != null ? params.getSize() : 10)
                 .fetch().all()
                 .mapNotNull(EventShortDto::map);
     }

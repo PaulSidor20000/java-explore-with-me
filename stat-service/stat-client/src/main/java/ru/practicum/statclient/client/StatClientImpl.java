@@ -18,15 +18,16 @@ import java.util.Optional;
 class StatClientImpl implements StatClient {
     private final WebClient client;
     private final ObjectMapper objectMapper;
-    private static final String SERVER_URI = "/stats";
+    private static final String STATS_URI = "/stats";
+    private static final String HIT_URI = "/hit";
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
-    public <T> Mono<String> post(T dto, String serverUri) throws JsonProcessingException {
+    public <T> Mono<String> hit(T dto) throws JsonProcessingException {
         String json = objectMapper.writeValueAsString(dto);
 
         return client.post()
-                .uri(serverUri)
+                .uri(HIT_URI)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(json))
@@ -34,26 +35,12 @@ class StatClientImpl implements StatClient {
                 .bodyToMono(String.class);
     }
 
-    public Flux<String> get(Collection<String> uris, String serverUri) {
-        return get(
-                LocalDateTime.now().minusYears(100).format(formatter),
-                LocalDateTime.now().plusYears(100).format(formatter),
-                uris, false, serverUri);
-    }
-
-    public Flux<String> get(Collection<String> uris, Boolean unique, String serverUri) {
-        return get(
-                LocalDateTime.now().minusYears(100).format(formatter),
-                LocalDateTime.now().plusYears(100).format(formatter),
-                uris, unique, serverUri);
-    }
-
     @Override
     public Flux<String> get(Collection<String> uris) {
         return get(
                 LocalDateTime.now().minusYears(100).format(formatter),
                 LocalDateTime.now().plusYears(100).format(formatter),
-                uris, false, SERVER_URI);
+                uris, false, STATS_URI);
     }
 
     @Override
@@ -61,7 +48,7 @@ class StatClientImpl implements StatClient {
         return get(
                 LocalDateTime.now().minusYears(100).format(formatter),
                 LocalDateTime.now().plusYears(100).format(formatter),
-                uris, unique, SERVER_URI);
+                uris, unique, STATS_URI);
     }
 
     @Override

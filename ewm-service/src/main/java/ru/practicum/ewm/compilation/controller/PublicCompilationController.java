@@ -2,7 +2,6 @@ package ru.practicum.ewm.compilation.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -17,7 +16,6 @@ public class PublicCompilationController {
     private final PublicCompilationService publicCompilationService;
 
     @GetMapping("{compId}")
-    @ResponseStatus(HttpStatus.OK)
     public Mono<CompilationDto> findCompilationById(@PathVariable Integer compId) {
         log.info("GET compilation by compId={}", compId);
 
@@ -25,7 +23,6 @@ public class PublicCompilationController {
     }
 
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
     public Flux<CompilationDto> findCompilations(@RequestParam(required = false) Boolean pinned,
                                                  @RequestParam(defaultValue = "0") Integer from,
                                                  @RequestParam(defaultValue = "10") Integer size

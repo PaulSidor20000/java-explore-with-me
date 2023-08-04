@@ -53,12 +53,11 @@ public class ErrorHandler {
 
     @ExceptionHandler
     public ResponseEntity<ApiError> otherServerErrorsHandler(Throwable error) {
+        log.error(LOG_ERROR, error.getClass() + " : " + error.getMessage());
         return ResponseEntity.status(500).body(response(error, HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
     private static ApiError response(Throwable error, HttpStatus status) {
-        log.warn(LOG_ERROR, error.getClass() + " : " + error.getMessage());
-
         return ApiError.builder()
                 .message(error.getMessage())
                 .reason(getReasonMessage(error))

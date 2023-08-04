@@ -17,7 +17,6 @@ public class PrivateRequestController {
     private final PrivateRequestService privateRequestService;
 
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
     public Flux<ParticipationRequestDto> findUserRequests(@PathVariable Integer userId) {
         log.info("GET user's requests userId={}", userId);
 
@@ -35,7 +34,6 @@ public class PrivateRequestController {
     }
 
     @PatchMapping("/{requestId}/cancel")
-    @ResponseStatus(HttpStatus.OK)
     public Mono<ParticipationRequestDto> cancelUserRequest(@PathVariable Integer userId,
                                                            @PathVariable Integer requestId
     ) {

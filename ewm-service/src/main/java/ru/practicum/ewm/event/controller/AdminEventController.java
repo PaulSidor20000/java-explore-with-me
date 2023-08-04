@@ -2,7 +2,6 @@ package ru.practicum.ewm.event.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -23,7 +22,6 @@ public class AdminEventController {
     private final AdminLocationService adminLocationService;
 
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
     public Flux<EventFullDto> findEvents(@Valid @ModelAttribute EventParams params) {
         log.info("GET admin events by params={}", params);
 
@@ -31,7 +29,6 @@ public class AdminEventController {
     }
 
     @PatchMapping("/{eventId}")
-    @ResponseStatus(HttpStatus.OK)
     public Mono<EventFullDto> updateEvent(@Valid @RequestBody UpdateEventAdminRequest updateEventAdminRequest,
                                           @PathVariable Integer eventId
     ) {

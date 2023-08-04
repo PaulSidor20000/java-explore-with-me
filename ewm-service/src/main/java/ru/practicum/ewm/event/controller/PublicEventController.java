@@ -3,7 +3,6 @@ package ru.practicum.ewm.event.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
@@ -30,19 +29,16 @@ public class PublicEventController {
     private final StatClient client;
 
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
     public Mono<List<EventShortDto>> findEvents(@Valid @ModelAttribute EventParams params,
                                                 ServerHttpRequest request
     ) {
         log.info("GET event by params={}", params);
 
         return publicEventService.findEvents(params)
-                .collectList()
                 .doOnSuccess(response -> hitStat(request, "/events"));
     }
 
     @GetMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
     public Mono<EventFullDto> findEventById(@PathVariable Integer id,
                                             ServerHttpRequest request
     ) {
@@ -54,12 +50,12 @@ public class PublicEventController {
 
     private void hitStat(ServerHttpRequest request, String uri) {
         try {
-            client.post(RequestDto.builder()
+            client.hit(RequestDto.builder()
                             .app("ewm-main-service")
                             .ip(Objects.requireNonNull(request.getRemoteAddress()).getAddress().getHostAddress())
                             .uri(uri)
                             .timestamp(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
-                            .build(), "/hit")
+                            .build())
                     .subscribe();
         } catch (JsonProcessingException e) {
             throw new BadRequestException(e.getMessage());

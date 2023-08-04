@@ -28,8 +28,8 @@ public class PrivateEventServiceImpl implements PrivateEventService {
     private final EventValidator eventValidator;
 
     @Override
-    public Flux<EventShortDto> findUserEvents(int userId, Integer from, Integer size) {
-        return eventRepository.getPrivateEventShortDtos(userId, from, size);
+    public Flux<EventShortDto> findUserEvents(EventParams params) {
+        return eventRepository.getPrivateEventShortDtos(params);
     }
 
     @Override

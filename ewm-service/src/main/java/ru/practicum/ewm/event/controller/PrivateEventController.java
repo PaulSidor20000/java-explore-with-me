@@ -13,6 +13,7 @@ import ru.practicum.ewm.request.dto.ParticipationRequestDto;
 import ru.practicum.ewm.utils.EventValidator;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -25,14 +26,13 @@ public class PrivateEventController {
     private final EventMapper mapper;
 
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
     public Flux<EventShortDto> findUserEvents(@PathVariable Integer userId,
-                                              @RequestParam(defaultValue = "0") Integer from,
-                                              @RequestParam(defaultValue = "10") Integer size
+                                              @Valid @ModelAttribute EventParams params
     ) {
-        log.info("GET user events by userId={}, from={}, size={}", userId, from, size);
+        log.info("GET user events by userId={}, params={}", userId, params);
+        params.setUsers(List.of(userId));
 
-        return privateEventService.findUserEvents(userId, from, size);
+        return privateEventService.findUserEvents(params);
     }
 
     @PostMapping
@@ -50,7 +50,6 @@ public class PrivateEventController {
     }
 
     @GetMapping("/{eventId}")
-    @ResponseStatus(HttpStatus.OK)
     public Mono<EventFullDto> findUserEventById(@PathVariable Integer userId,
                                                 @PathVariable Integer eventId
     ) {
@@ -60,7 +59,6 @@ public class PrivateEventController {
     }
 
     @GetMapping("/{eventId}/requests")
-    @ResponseStatus(HttpStatus.OK)
     public Flux<ParticipationRequestDto> findRequestsOfUserEvent(@PathVariable Integer userId,
                                                                  @PathVariable Integer eventId
     ) {
@@ -70,7 +68,6 @@ public class PrivateEventController {
     }
 
     @PatchMapping("/{eventId}")
-    @ResponseStatus(HttpStatus.OK)
     public Mono<EventFullDto> updateUserEventById(@PathVariable Integer userId,
                                                   @PathVariable Integer eventId,
                                                   @Valid @RequestBody UpdateEventUserRequest updateEventUserRequest
@@ -88,7 +85,6 @@ public class PrivateEventController {
     }
 
     @PatchMapping("/{eventId}/requests")
-    @ResponseStatus(HttpStatus.OK)
     public Mono<EventRequestStatusUpdateResult> updateRequestsOfUserEvent(
             @PathVariable Integer userId,
             @PathVariable Integer eventId,
