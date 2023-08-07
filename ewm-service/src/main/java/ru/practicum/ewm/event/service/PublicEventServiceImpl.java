@@ -20,8 +20,10 @@ import ru.practicum.statdto.dto.ViewStats;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -44,10 +46,16 @@ public class PublicEventServiceImpl implements PublicEventService {
                     return getHits(uris)
                             .filter(viewStats -> viewStats.getUri() != null)
                             .collectMap(viewStats -> Integer.parseInt(viewStats.getUri().split("/")[2]))
-                            .map(viewStatsMap ->
-                                    mapDtos.keySet().stream()
-                                            .map(key -> eventMapper.enrich(mapDtos.get(key), viewStatsMap.get(key)))
-                                            .collect(Collectors.toList()));
+                            .map(viewStatsMap -> {
+                                Stream<EventShortDto> events = mapDtos.keySet().stream()
+                                        .map(key -> eventMapper.enrich(mapDtos.get(key), viewStatsMap.get(key)));
+                                if (params.getSort() != null && params.getSort().equals("VIEWS")) {
+                                    return events
+                                            .sorted(Comparator.comparing(EventShortDto::getViews).reversed())
+                                            .collect(Collectors.toList());
+                                }
+                                return events.collect(Collectors.toList());
+                            });
                 });
     }
 
