@@ -13,7 +13,7 @@ import ru.practicum.ewm.request.entity.Request;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RequestValidator {
 
-    public static Event incomingRequestValidator(int userId, int confirmedRequests, Event event) {
+    public Event incomingRequestValidator(int userId, int confirmedRequests, Event event) {
         checkParticipantLimit(event.getParticipantLimit(), confirmedRequests);
 
         if (event.getUserId() == userId) {
@@ -25,7 +25,7 @@ public class RequestValidator {
         return event;
     }
 
-    public static Request updateRequests(Request request, Event event, int confirmedRequests, RequestStatus statusToUpdate) {
+    public Request updateRequests(Request request, Event event, int confirmedRequests, RequestStatus statusToUpdate) {
         if (!event.isRequestModeration() || event.getParticipantLimit() == 0) {
             request.setStatus(statusToUpdate);
             return request;
@@ -36,14 +36,14 @@ public class RequestValidator {
         return request;
     }
 
-    public static boolean isRequestPending(Request request) {
+    public boolean isRequestPending(Request request) {
         if (request.getStatus() != RequestStatus.PENDING) {
             throw new RequestConditionException("The request was considered already");
         }
         return true;
     }
 
-    private static void checkParticipantLimit(int participantLimit, int confirmedRequests) {
+    private void checkParticipantLimit(int participantLimit, int confirmedRequests) {
         if (participantLimit != 0 && confirmedRequests >= participantLimit) {
             throw new RequestConditionException("Participant limit was reached");
         }

@@ -2,7 +2,6 @@ package ru.practicum.ewm.compilation.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.practicum.ewm.compilation.dto.CompilationDto;
@@ -19,8 +18,8 @@ public class PublicCompilationServiceImpl implements PublicCompilationService {
     }
 
     @Override
-    public Flux<CompilationDto> findCompilations(MultiValueMap<String, String> params) {
-        return compilationRepository.findCompilationsByParams(params);
+    public Flux<CompilationDto> findCompilations(Boolean pinned, Integer from, Integer size) {
+        return compilationRepository.findCompilationsByParams(pinned, from, size);
     }
 
 }

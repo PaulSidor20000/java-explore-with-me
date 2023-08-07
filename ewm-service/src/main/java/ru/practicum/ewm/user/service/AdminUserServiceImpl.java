@@ -1,15 +1,17 @@
 package ru.practicum.ewm.user.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import ru.practicum.ewm.exceptions.UserNotFoundException;
+import ru.practicum.ewm.exceptions.NotFoundException;
 import ru.practicum.ewm.user.dto.NewUserRequest;
 import ru.practicum.ewm.user.dto.UserDto;
 import ru.practicum.ewm.user.dto.UserMapper;
 import ru.practicum.ewm.user.repository.UserRepository;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -18,8 +20,8 @@ public class AdminUserServiceImpl implements AdminUserService {
     private final UserMapper userMapper;
 
     @Override
-    public Flux<UserDto> findUsers(MultiValueMap<String, String> params) {
-        return userRepository.findAllUsersByParams(params)
+    public Flux<UserDto> findUsers(List<Integer> ids, Pageable page) {
+        return userRepository.findAllUsersByParams(ids, page)
                 .map(userMapper::map);
     }
 
@@ -33,7 +35,7 @@ public class AdminUserServiceImpl implements AdminUserService {
     @Override
     public Mono<Void> deleteUser(int userId) {
         return userRepository.findById(userId)
-                .switchIfEmpty(Mono.error(new UserNotFoundException(userId)))
+                .switchIfEmpty(Mono.error(new NotFoundException(String.format("User with id=%d was not found", userId))))
                 .then(userRepository.deleteById(userId));
     }
 

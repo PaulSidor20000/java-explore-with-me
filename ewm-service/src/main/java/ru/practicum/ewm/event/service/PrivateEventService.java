@@ -1,6 +1,5 @@
 package ru.practicum.ewm.event.service;
 
-import org.springframework.data.domain.Pageable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.practicum.ewm.event.dto.*;
@@ -8,7 +7,7 @@ import ru.practicum.ewm.event.entity.Event;
 import ru.practicum.ewm.request.dto.ParticipationRequestDto;
 
 public interface PrivateEventService {
-    Flux<EventShortDto> findUserEvents(int userId, Pageable page);
+    Flux<EventShortDto> findUserEvents(EventParams params);
 
     Mono<EventFullDto> createNewEvent(Event event);
 

@@ -5,36 +5,58 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.practicum.ewm.event.dto.EventFullDto;
 import ru.practicum.ewm.event.dto.EventMapper;
+import ru.practicum.ewm.event.dto.EventParams;
 import ru.practicum.ewm.event.dto.EventShortDto;
 import ru.practicum.ewm.event.repository.EventRepository;
 import ru.practicum.ewm.exceptions.BadRequestException;
-import ru.practicum.ewm.exceptions.EventNotFoundException;
+import ru.practicum.ewm.exceptions.NotFoundException;
+import ru.practicum.ewm.utils.EventValidator;
 import ru.practicum.statclient.client.StatClient;
 import ru.practicum.statdto.dto.ViewStats;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
 public class PublicEventServiceImpl implements PublicEventService {
     private final EventRepository eventRepository;
+    private final EventValidator eventValidator;
     private final ObjectMapper objectMapper;
     private final EventMapper eventMapper;
     private final StatClient client;
 
     @Override
-    public Flux<EventShortDto> findEvents(MultiValueMap<String, String> params) {
-        return eventRepository.getPublicEventShortDtos(params)
-                .flatMap(dto ->
-                        getHits(List.of("/events/" + dto.getId())).singleOrEmpty()
-                                .map(viewStats -> eventMapper.enrich(dto, viewStats))
-                );
+    public Mono<List<EventShortDto>> findEvents(EventParams params) {
+        return Mono.just(params)
+                .doOnNext(eventValidator::validateParams)
+                .flatMapMany(eventRepository::getPublicEventShortDtos)
+                .collectMap(EventShortDto::getId)
+                .flatMap(mapDtos -> {
+                    final List<String> uris = new ArrayList<>();
+                    mapDtos.keySet().forEach(key -> uris.add("/events/" + key));
+                    return getHits(uris)
+                            .filter(viewStats -> viewStats.getUri() != null)
+                            .collectMap(viewStats -> Integer.parseInt(viewStats.getUri().split("/")[2]))
+                            .map(viewStatsMap -> {
+                                Stream<EventShortDto> events = mapDtos.keySet().stream()
+                                        .map(key -> eventMapper.enrich(mapDtos.get(key), viewStatsMap.get(key)));
+                                if (params.getSort() != null && params.getSort().equals("VIEWS")) {
+                                    return events
+                                            .sorted(Comparator.comparing(EventShortDto::getViews).reversed())
+                                            .collect(Collectors.toList());
+                                }
+                                return events.collect(Collectors.toList());
+                            });
+                });
     }
 
     @Override
@@ -44,7 +66,7 @@ public class PublicEventServiceImpl implements PublicEventService {
                         getHits(List.of("/events/" + eventId)).singleOrEmpty(),
                         eventMapper::enrich
                 )
-                .switchIfEmpty(Mono.error(new EventNotFoundException(eventId)));
+                .switchIfEmpty(Mono.error(new NotFoundException(String.format("Event with id=%d was not found", eventId))));
     }
 
     private Flux<ViewStats> getHits(Collection<String> uris) {
