@@ -7,7 +7,7 @@ import reactor.core.publisher.Mono;
 import java.util.Collection;
 
 public interface StatClient {
-    <T> Mono<String> post(T dto, String uri) throws JsonProcessingException;
+    <T> Mono<String> hit(T dto) throws JsonProcessingException;
 
     Flux<String> get(Collection<String> uris);
 

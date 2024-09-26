@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
@@ -15,20 +14,20 @@ import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Optional;
 
-@Service
 @RequiredArgsConstructor
 class StatClientImpl implements StatClient {
     private final WebClient client;
     private final ObjectMapper objectMapper;
-    private static final String SERVER_URI = "/stats";
+    private static final String STATS_URI = "/stats";
+    private static final String HIT_URI = "/hit";
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
-    public <T> Mono<String> post(T dto, String serverUri) throws JsonProcessingException {
+    public <T> Mono<String> hit(T dto) throws JsonProcessingException {
         String json = objectMapper.writeValueAsString(dto);
 
         return client.post()
-                .uri(serverUri)
+                .uri(HIT_URI)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(json))
@@ -41,14 +40,7 @@ class StatClientImpl implements StatClient {
         return get(
                 LocalDateTime.now().minusYears(100).format(formatter),
                 LocalDateTime.now().plusYears(100).format(formatter),
-                uris, false, SERVER_URI);
-    }
-
-    public Flux<String> get(Collection<String> uris, String serverUri) {
-        return get(
-                LocalDateTime.now().minusYears(100).format(formatter),
-                LocalDateTime.now().plusYears(100).format(formatter),
-                uris, false, serverUri);
+                uris, false, STATS_URI);
     }
 
     @Override
@@ -56,14 +48,7 @@ class StatClientImpl implements StatClient {
         return get(
                 LocalDateTime.now().minusYears(100).format(formatter),
                 LocalDateTime.now().plusYears(100).format(formatter),
-                uris, unique, SERVER_URI);
-    }
-
-    public Flux<String> get(Collection<String> uris, Boolean unique, String serverUri) {
-        return get(
-                LocalDateTime.now().minusYears(100).format(formatter),
-                LocalDateTime.now().plusYears(100).format(formatter),
-                uris, unique, serverUri);
+                uris, unique, STATS_URI);
     }
 
     @Override

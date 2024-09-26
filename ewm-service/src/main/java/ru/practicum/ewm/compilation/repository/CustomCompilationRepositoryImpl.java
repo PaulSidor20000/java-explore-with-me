@@ -2,7 +2,6 @@ package ru.practicum.ewm.compilation.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.r2dbc.core.DatabaseClient;
-import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import ru.practicum.ewm.compilation.dto.CompilationDto;
@@ -21,22 +20,22 @@ public class CustomCompilationRepositoryImpl implements CustomCompilationReposit
                     " LEFT JOIN requests r ON r.event_id = e.event_id";
 
     @Override
-    public Flux<CompilationDto> findCompilationsByParams(MultiValueMap<String, String> params) {
+    public Flux<CompilationDto> findCompilationsByParams(Boolean pinned, Integer from, Integer size) {
         String query = String.format("%s%s%s", SELECT_QUERY,
-                params.get("pinned") != null
+                pinned != null
                         ? " WHERE comp.compilation_pinned = (:pinned)::boolean"
                         : " WHERE comp.compilation_pinned IS NOT NULL",
                 " GROUP BY e.event_id, comp.compilation_id, category_name, user_name" +
                         " LIMIT (:size)::bigint OFFSET (:from)::bigint");
         DatabaseClient.GenericExecuteSpec bindings = client.sql(query);
 
-        if (params.get("pinned") != null) {
-            bindings = bindings.bind("pinned", params.get("pinned"));
+        if (pinned != null) {
+            bindings = bindings.bind("pinned", pinned);
         }
 
         return bindings
-                .bind("from", params.get("from") != null ? params.get("from") : 0)
-                .bind("size", params.get("size") != null ? params.get("size") : 10)
+                .bind("from", from)
+                .bind("size", size)
                 .fetch().all()
                 .bufferUntilChanged(result -> result.get("compilation_id"))
                 .map(CompilationDto::map);
